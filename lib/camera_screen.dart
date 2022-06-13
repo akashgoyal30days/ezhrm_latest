@@ -12,7 +12,7 @@ import 'package:screenshot/screenshot.dart';
 
 // THIS SCREEN RETUENS BYTES OF IMAGE IN Navigator.pop(context)
 
-enum CameraType { frontCamera, rearCamera }
+enum CameraType {frontCamera, rearCamera}
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen(
@@ -46,6 +46,7 @@ class _CameraScreenState extends State<CameraScreen> {
     _cameraController = CameraController(
       widget.cameraType == CameraType.frontCamera ? cameras[1] : cameras[0],
       ResolutionPreset.max,
+      enableAudio: false,
     );
     await _cameraController.initialize();
     setState(() {
@@ -53,7 +54,7 @@ class _CameraScreenState extends State<CameraScreen> {
     });
   }
 
-  takePhoto() async {
+  capturePhoto() async {
     var tempPath = join(
       (await getTemporaryDirectory()).path,
       '${DateTime.now()}.png',
@@ -92,7 +93,7 @@ class _CameraScreenState extends State<CameraScreen> {
                         child: GestureDetector(
                           onDoubleTap: () {
                             if (showImagePreview) return;
-                            takePhoto();
+                            capturePhoto();
                           },
                           child: Screenshot(
                             controller: _screenshotController,
@@ -117,10 +118,8 @@ class _CameraScreenState extends State<CameraScreen> {
                                           CameraType.frontCamera &&
                                       widget.showFrame)
                                     ColorFiltered(
-                                      colorFilter: ColorFilter.mode(
-                                        currentlyTakingScreenshot
-                                            ? Colors.black
-                                            : Colors.black45,
+                                      colorFilter: const ColorFilter.mode(
+                                        Colors.black,
                                         BlendMode.srcOut,
                                       ), // This one will create the magic
                                       child: Stack(
@@ -204,7 +203,7 @@ class _CameraScreenState extends State<CameraScreen> {
                                       ],
                                     ),
                                     GestureDetector(
-                                      onTap: takePhoto,
+                                      onTap: capturePhoto,
                                       child: const _ShutterButton(),
                                     ),
                                   ],

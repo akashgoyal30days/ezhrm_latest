@@ -9,7 +9,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:new_version/new_version.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
@@ -41,10 +40,11 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (goGreenModel.backgroundLocationTrackingEnabled) {
-        showLocationTrackingDialog();
-      }
+      // if (goGreenModel.backgroundLocationTrackingEnabled) {
+      //   showLocationTrackingDialog();
+      // }
       if (goGreenModel.showUpdateAvailableDialog) showUpdate();
     });
   }
@@ -53,7 +53,9 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
         context: context,
         builder: (context) {
           return WillPopScope(
-            onWillPop: () async => false,
+            onWillPop: () {
+              Navigator.pop(context);
+            },
             child: Theme(
               data: ThemeData.light(),
               child: CupertinoAlertDialog(

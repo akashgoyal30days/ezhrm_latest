@@ -1,3 +1,4 @@
+import 'package:ezhrm/log_files.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,6 +30,9 @@ class _AboutState extends State<About>
     }
   }
 
+  DateTime lastButtonClick = DateTime.now();
+  int buttonClickCount = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,10 +46,34 @@ class _AboutState extends State<About>
                 Image.asset('assets/30days.png', scale: 1.5),
                 Column(
                   children: [
-                    SizedBox(
-                      child: Image.asset(
-                        'assets/ezlogo.png',
-                        scale: 6,
+                    GestureDetector(
+                      onTap: () {
+                        if (buttonClickCount == 5) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const LogFiles()));
+                          buttonClickCount = 0;
+                          return;
+                        }
+                        if (buttonClickCount == 0 ||
+                            DateTime.now()
+                                    .difference(lastButtonClick)
+                                    .inMilliseconds <
+                                600) {
+                          buttonClickCount++;
+                          lastButtonClick = DateTime.now();
+                          return;
+                        }
+                        print("came out with buttonClickCount");
+
+                        buttonClickCount = 0;
+                      },
+                      child: SizedBox(
+                        child: Image.asset(
+                          'assets/ezlogo.png',
+                          scale: 6,
+                        ),
                       ),
                     ),
                     const Text(

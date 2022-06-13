@@ -12,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'attendance_records.dart';
 import 'main.dart';
@@ -32,8 +33,7 @@ class _RequestAttendanceState extends State<RequestAttendance> {
       attendanceloadingOverlay = false,
       showTodaysRecords = false,
       ableToSendRequest = goGreenModel.canSendRequest;
-  Position currentPosition =
-      Position(latitude: 28.6894989, longitude: 76.9533923);
+  Position currentPosition;
   final Set<Marker> marker = {};
   final List attendanceRecordsList = [];
   GoogleMapController _googleMapController;
@@ -46,6 +46,7 @@ class _RequestAttendanceState extends State<RequestAttendance> {
   @override
   void initState() {
     fetchAttendanceRecords();
+    checkGPSStatus();
     super.initState();
   }
 
@@ -53,9 +54,14 @@ class _RequestAttendanceState extends State<RequestAttendance> {
   checkGPSStatus() async {
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        try {
+      var permissions = await PermissionHandler().requestPermissions([
+        PermissionGroup.locationWhenInUse,
+        PermissionGroup.location,
+      ]);
+      if (permissions[PermissionGroup.locationWhenInUse] ==
+              PermissionStatus.denied &&
+          permissions[PermissionGroup.location] == PermissionStatus.denied) {
+        if (mounted) {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
@@ -64,41 +70,22 @@ class _RequestAttendanceState extends State<RequestAttendance> {
             ),
             backgroundColor: Colors.red,
           ));
-        } catch (e) {
-          //
-        }
-        Navigator.pop(context);
-        return;
-      } else if (permission == LocationPermission.deniedForever) {
-        try {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-              "Goto Settings and give Location Permission",
-              textAlign: TextAlign.center,
-            ),
-            backgroundColor: Colors.red,
-          ));
-        } catch (e) {
-          //
         }
         Navigator.pop(context);
         return;
       }
     }
-    var servicestatus = await Geolocator.isLocationServiceEnabled();
-    if (!servicestatus) {
-      try {
+    var locationEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!locationEnabled) {
+      if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
-            "Please Turn On GPS",
+            "Please Turn your GPS ON",
             textAlign: TextAlign.center,
           ),
           backgroundColor: Colors.red,
         ));
-      } catch (e) {
-        //
       }
       Navigator.pop(context);
       return;
@@ -107,19 +94,27 @@ class _RequestAttendanceState extends State<RequestAttendance> {
   }
 
   getCurrentLocation() async {
+    var permission = await Geolocator.checkPermission();
+    if (!(permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always)) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+          "Please Goto Settings and give Location Permission",
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.red,
+      ));
+      Navigator.pop(context);
+      return;
+    }
     locationUpdateStream =
         Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high)
             .listen(updateLocationOnMap);
-    updateLocationOnMap(await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    ));
   }
 
-  updateLocationOnMap(Position positon,
-      [bool ignoreLastPosition = false]) async {
-    if (!ignoreLastPosition &&
-        currentPosition.latitude == positon.latitude &&
-        currentPosition.longitude == positon.longitude) return;
+  updateLocationOnMap(Position positon) async {
+    if (!mounted) return;
     setState(() {
       showLoadingSpinnerOnTop = true;
     });
@@ -178,10 +173,24 @@ class _RequestAttendanceState extends State<RequestAttendance> {
 
   sendAttendanceRequestAPI() async {
     if (!ableToSendRequest) return;
+    if (currentPosition == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Location not captured, please enable location",
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     setState(() {
       attendanceloadingOverlay = true;
     });
     try {
+      var apiStartTime = DateTime.now();
+
       Map<String, String> body = {
         'type': 'mark',
         'uid': SharedPreferencesInstance.getString('uid') ?? "",
@@ -199,37 +208,52 @@ class _RequestAttendanceState extends State<RequestAttendance> {
           'Accept': 'application/json',
         },
       );
+      var apiEndTime = DateTime.now();
 
+      var logBody = {
+        'type': 'mark',
+        'uid': SharedPreferencesInstance.getString('uid') ?? "",
+        'cid': SharedPreferencesInstance.getString('comp_id') ?? "",
+        'device_id': SharedPreferencesInstance.getString('deviceid') ?? "",
+        'lat': currentPosition.latitude.toString(),
+        'long': currentPosition.longitude.toString(),
+        'img_data': "sent Data (Too Long To display)",
+        'send_request': ableToSendRequest ? "1" : "0"
+      };
+      SharedPreferencesInstance.saveLogs(
+        response.request.url.toString(),
+        json.encode(logBody),
+        response.body,
+        apiEndTime.difference(apiStartTime).inSeconds
+      );
       log(response.body);
       Map data = json.decode(response.body);
       log(data.toString());
 
-      if (!data.containsKey("code")) {
-        setState(() {
-          attendanceloadingOverlay = false;
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Error Occured"),
-            backgroundColor: Color(0xAAF44336),
-            behavior: SnackBarBehavior.floating,
-          ));
-        });
-        return;
-      }
-
       setState(() {
         attendanceloadingOverlay = false;
       });
+      if (!data.containsKey("code")) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Error Occured"),
+          backgroundColor: Color(0xAAF44336),
+          behavior: SnackBarBehavior.floating,
+        ));
+        return;
+      }
 
-      if (data["code"].toString() == "1001") return code1001(data);
-      if (data["code"].toString() == "1002") return code1002(data);
+      switch (data["code"].toString()) {
+        case "1001":
+          return code1001(data);
+        case "1002":
+          return code1002(data);
+        default:
+      }
 
       // logouts if code is not equal to 1001 or 1002
       await SharedPreferencesInstance.logOut();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Invalid Device"),
-        backgroundColor: Color(0xAAF44336),
-        behavior: SnackBarBehavior.floating,
-      ));
+          content: Text("Invalid Device"), backgroundColor: Colors.red));
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (_) => const Login(),
@@ -260,7 +284,7 @@ class _RequestAttendanceState extends State<RequestAttendance> {
         ),
         backgroundColor: Colors.green,
       ));
-      fetchAttendanceRecords(false);
+      fetchAttendanceRecords();
       return;
     }
     await showDialog(
@@ -315,7 +339,7 @@ class _RequestAttendanceState extends State<RequestAttendance> {
     sendAttendanceRequestAPI();
   }
 
-  fetchAttendanceRecords([bool callGoGreen = true]) async {
+  fetchAttendanceRecords() async {
     final response = await http
         .post("$customurl/controller/process/app/attendance.php", body: {
       'type': 'get_att_fetch',
@@ -326,7 +350,10 @@ class _RequestAttendanceState extends State<RequestAttendance> {
     });
     var data = json.decode(response.body);
     String status = data['status']?.toString() ?? "";
-    if (status != "true") return;
+    if (status != "true") {
+      checkGPSStatus();
+      return;
+    }
     attendanceRecordsList.clear();
     attendanceRecordsList.addAll(data["data"]);
     String creditStatus = data["credit"].toString();
@@ -338,7 +365,9 @@ class _RequestAttendanceState extends State<RequestAttendance> {
                 ? "Submitted"
                 : "Pending";
     setState(() {});
-    if (attendanceRecordsList.isEmpty) return;
+    if (attendanceRecordsList.isEmpty) {
+      return;
+    }
     bool clickedOnProceed = await Navigator.push<bool>(
             context,
             MaterialPageRoute(
@@ -367,23 +396,26 @@ class _RequestAttendanceState extends State<RequestAttendance> {
         children: [
           ableToSendRequest
               ? GoogleMap(
-                  // Center Of India
                   initialCameraPosition: const CameraPosition(
                     target: LatLng(22.9734, 78.9629),
-                    zoom: 4,
+                    zoom: 18,
                   ),
                   mapType: mapType,
                   markers: marker,
                   onMapCreated: (controller) async {
                     _googleMapController = controller;
-                    await _googleMapController
-                        ?.animateCamera(CameraUpdate.newCameraPosition(
-                      CameraPosition(
-                        target: LatLng(currentPosition.latitude,
-                            currentPosition.longitude),
-                        zoom: 18,
-                      ),
-                    ));
+                    if (currentPosition != null) {
+                      await _googleMapController
+                          ?.animateCamera(CameraUpdate.newCameraPosition(
+                        CameraPosition(
+                          target: LatLng(
+                            currentPosition.latitude,
+                            currentPosition.longitude,
+                          ),
+                          zoom: 18,
+                        ),
+                      ));
+                    }
                   },
                   mapToolbarEnabled: true,
                   compassEnabled: true,
@@ -462,9 +494,8 @@ class _RequestAttendanceState extends State<RequestAttendance> {
                                 Icons.my_location_sharp,
                                 onTap: () async => updateLocationOnMap(
                                     await Geolocator.getCurrentPosition(
-                                      desiredAccuracy: LocationAccuracy.high,
-                                    ),
-                                    true),
+                                  desiredAccuracy: LocationAccuracy.high,
+                                )),
                               ),
                             ],
                           ),

@@ -96,10 +96,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       });
       var mydataaatt = json.decode(responsenew.body);
       if (mydataaatt['status'] == true) {
-        _fetchNotifications();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             behavior: SnackBarBehavior.floating,
             content: Text("Notification deleted successful")));
+        _fetchNotifications(true);
       } else {
         //Navigator.of(context).pop(false);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -298,7 +298,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                   );
                                                 },
                                                 child: const Icon(
-                                                  Icons.delete_forever_rounded,
+                                                  Icons.delete,
                                                   size: 16,
                                                   color: Color.fromRGBO(
                                                       239, 154, 154, 1),

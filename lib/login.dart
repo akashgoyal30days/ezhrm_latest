@@ -236,7 +236,6 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
       message = 'please wait....';
       visible = true;
     });
-    GoogleSignIn().disconnect();
 
     var uri = "$customurl/controller/process/app/user_glogin.php";
     final response = await http.post(uri, body: {

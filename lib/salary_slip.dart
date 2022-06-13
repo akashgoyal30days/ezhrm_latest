@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:core';
-import 'dart:developer';
 import 'dart:io';
 import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +18,7 @@ import 'package:downloads_path_provider_28/downloads_path_provider_28.dart';
 
 import 'drawer.dart';
 
-const kHtml =
-    """
+const kHtml = """
 <h1>Heading</h1>
 <p>A paragraph with <strong>strong</strong> <em>emphasized</em> text.</p>
 <ol>
@@ -144,14 +142,7 @@ class _SalarySlipState extends State<SalarySlip>
   }
 
   Future<void> generateDocument() async {
-    
-    
-    
-    
-    
-    
-    htmlContent =
-        """
+    htmlContent = """
     <html>
  <head>
   <title> Slip-$Name</title>
@@ -257,7 +248,7 @@ class _SalarySlipState extends State<SalarySlip>
    <script>
   
    </script>
-   <td style=" border-bottom: 1px dashed #000; font-size:15px;">
+   <td style=" border-bottom: 1px dashed #000; font-size:15px;">  
       ${newListlabel.join('')}
    </td>
    <td style=" border-bottom: 1px dashed #000;">
@@ -307,7 +298,7 @@ class _SalarySlipState extends State<SalarySlip>
    </body>
   </html> 
     """;
-    log(htmlContent.toString());
+
     final dir = await _getDownloadDirectory();
     final isPermissionStatusGranted = await _requestPermissions();
     if (isPermissionStatusGranted) {
@@ -488,7 +479,7 @@ class _SalarySlipState extends State<SalarySlip>
         'Accept': 'application/json',
       });
       data = json.decode(response.body);
-      log(data.toString());
+      print(data);
       userData = data["data"];
       if (userData == null) {
         setState(() {

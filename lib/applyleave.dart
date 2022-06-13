@@ -327,7 +327,8 @@ class _ApplyLeaveState extends State<ApplyLeave>
   bool submitting = false;
   submitButton() async {
     if (submitting) return;
-    if (reasonController.text.isNotEmpty && _mycredit != null &&
+    if (reasonController.text.isNotEmpty &&
+        _mycredit != null &&
         _mylist != null) {
       setState(() {
         userDatanew = null;
@@ -460,12 +461,27 @@ class _ApplyLeaveState extends State<ApplyLeave>
                           ? []
                           : userData?.map((item) {
                                 return DropdownMenuItem(
-                                  child: Text(
-                                    item['type'],
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontFamily: font1,
-                                    ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          item['type'],
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontFamily: font1,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        " Available: " +
+                                            (item['avail_quota']?.toString() ??
+                                                ""),
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: font1,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   value: item['id'].toString(),
                                 );
@@ -509,7 +525,7 @@ class _ApplyLeaveState extends State<ApplyLeave>
                             );
                           })?.toList() ??
                           [],
-                      value: selectedItem?.toString() ?? "0",
+                      value: selectedItem?.toString(),
                       onChanged: (String newValue) {
                         selectedItem = int.parse(newValue);
                         var item = userDatanew[int.parse(newValue)];
@@ -562,45 +578,66 @@ class _ApplyLeaveState extends State<ApplyLeave>
                               ),
                             ),
                           ),
-                          (selectedCreditName != null &&
-                                  (selectedCreditName.contains("Half Day") ||
-                                      selectedCreditName.contains("Short")))
-                              ? const SizedBox()
-                              : Expanded(
-                                  child: Row(
-                                    children: [
-                                      const VerticalDivider(
-                                        indent: 4,
-                                        endIndent: 4,
-                                        color: Color(0x99072a99),
-                                      ),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            showPickernew(context);
-                                          },
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              const Text("To",
-                                                  style: TextStyle(
-                                                    fontSize: 17,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Color(0xff072a99),
-                                                  )),
-                                              const SizedBox(height: 10),
-                                              Text(
-                                                DateFormat("dd MMM, y")
-                                                    .format(selectedDatenew),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const VerticalDivider(
+                                  indent: 4,
+                                  endIndent: 4,
+                                  color: Color(0x99072a99),
+                                ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (selectedCreditName != null &&
+                                          (selectedCreditName
+                                                  .contains("Half Day") ||
+                                              selectedCreditName
+                                                  .contains("Short"))) return;
+                                      showPickernew(context);
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text("To",
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w500,
+                                              color: (selectedCreditName !=
+                                                          null &&
+                                                      (selectedCreditName
+                                                              .contains(
+                                                                  "Half Day") ||
+                                                          selectedCreditName
+                                                              .contains(
+                                                                  "Short")))
+                                                  ? Colors.grey
+                                                  : const Color(0xff072a99),
+                                            )),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                            DateFormat("dd MMM, y")
+                                                .format(selectedDatenew),
+                                            style: TextStyle(
+                                              color: (selectedCreditName !=
+                                                          null &&
+                                                      (selectedCreditName
+                                                              .contains(
+                                                                  "Half Day") ||
+                                                          selectedCreditName
+                                                              .contains(
+                                                                  "Short")))
+                                                  ? Colors.grey
+                                                  : Colors.black,
+                                            )),
+                                      ],
+                                    ),
                                   ),
                                 ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -624,7 +661,7 @@ class _ApplyLeaveState extends State<ApplyLeave>
                     onSubmitted: (_) {},
                     minLines: 5,
                     maxLines: 15,
-                    textInputAction: TextInputAction.newline,
+                    textInputAction: TextInputAction.done,
                     style: const TextStyle(color: Color(0xff072a99)),
                     decoration: InputDecoration(
                       fillColor: const Color(0x33072a99),
