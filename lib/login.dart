@@ -90,64 +90,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
   }
   // _handleSignOut() async => await _googleSignIn.disconnect();
 
-  void showUpdate() => showCupertinoDialog(
-        context: context,
-        builder: (context) {
-          return WillPopScope(
-            onWillPop: () async => false,
-            child: Theme(
-              data: ThemeData.light(),
-              child: CupertinoAlertDialog(
-                title: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    Image.asset(
-                      'assets/ezlogo.png',
-                      width: 200,
-                      height: 100,
-                    ),
-                    const Text(
-                      'EZHRM',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-                content: Column(
-                  children: const [
-                    SizedBox(height: 20),
-                    Text(
-                      'Update available',
-                      style: TextStyle(
-                          fontFamily: font1,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 25),
-                    ),
-                  ],
-                ),
-                actions: <Widget>[
-                  CupertinoDialogAction(
-                    isDefaultAction: true,
-                    child: const Text('Update now'),
-                    onPressed: () async {
-                      if (await canLaunch(
-                          "https://play.google.com/store/apps/details?id=com.in30days.ezhrm")) {
-                        await launch(
-                            "https://play.google.com/store/apps/details?id=com.in30days.ezhrm");
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-
-  Future<void> initPlatformState() async {
+ Future<void> initPlatformState() async {
     try {
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
