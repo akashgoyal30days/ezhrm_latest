@@ -48,7 +48,7 @@ android {
         applicationId "com.in30days.ezhrm"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 55
+        versionCode 56
         versionName flutterVersionName
         multiDexEnabled true
     }

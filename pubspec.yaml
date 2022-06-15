@@ -120,8 +120,16 @@ dependencies:
   # in_app_update: ^3.0.0
 
 dev_dependencies:
+  flutter_launcher_icons: "^0.8.1"
+
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  android: "launcher_icon"
+  remove_alpha_ios: true
+  ios: true
+  image_path: "assets/ezlogo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
