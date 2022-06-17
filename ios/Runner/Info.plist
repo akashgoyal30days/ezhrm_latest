@@ -22,6 +22,28 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Need to access music</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Need access to Calender</string>
+	<key>NSCameraUsageDescription</key>
+	<string>InAppWebView requires access to camera.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>InAppWebView requires access to contacts for class meetings.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Need location</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Need location</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Need location</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>InAppWebView requires access to mic.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Need access to motion</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need to access your photo library to upload homework</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>InAppWebView requires access to speech recognition for class meetings.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
