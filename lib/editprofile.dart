@@ -196,13 +196,14 @@ class _EditProfileState extends State<EditProfile>
       if (data['status'] == true) {
       } else {
         Fluttertoast.showToast(
-            msg: "Problem Fetching Details",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 2,
-            backgroundColor: Colors.white,
-            textColor: Colors.black,
-            fontSize: 16.0);
+          msg: "Problem Fetching Details",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 2,
+          backgroundColor: Colors.white,
+          textColor: Colors.black,
+          fontSize: 16.0,
+        );
       }
     } catch (error) {
       showRetry();
@@ -210,6 +211,7 @@ class _EditProfileState extends State<EditProfile>
   }
 
   submitButton() async {
+    CachedNetworkImage.evictFromCache(myimg);
     if (altphoneController.text == '' &&
         _image != null &&
         _nameController.text == '' &&

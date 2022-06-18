@@ -1,3 +1,4 @@
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,7 @@ class SharedPreferencesInstance {
 
   static logOut() async {
     GoogleSignIn().disconnect();
+    DefaultCacheManager().emptyCache();
     await instance.clear();
   }
 

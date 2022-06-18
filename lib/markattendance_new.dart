@@ -115,6 +115,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
   }
 
   startLocationStreaming() async {
+    updateLocationOnMap(await Geolocator.getCurrentPosition());
     locationUpdateStream =
         Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high)
             .listen(updateLocationOnMap);
@@ -141,27 +142,19 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
       return !showOutOfRangeButton;
     } catch (e) {
       log(e.toString());
-      // ScaffoldMessenger.of(context).showSnackBar(
       showCheckInButtonLoading(false);
-      //   const SnackBar(
-      //     content: Text(
-      //       "Please Try Again",
-      //       textAlign: TextAlign.center,
-      //     ),
-      //     backgroundColor: Colors.red,
-      //   ),
-      // );
     }
     return false;
   }
 
   updateLocationOnMap(Position positon) async {
-    if (!mounted) return;
-    setState(() {
-      showLoadingSpinnerOnTop = true;
-    });
     currentPosition = positon;
-    setMarkerOnMap();
+    if (mounted) {
+      setState(() {
+        showLoadingSpinnerOnTop = true;
+      });
+      setMarkerOnMap();
+    }
     await _googleMapController?.animateCamera(CameraUpdate.newCameraPosition(
       CameraPosition(
         target: LatLng(currentPosition.latitude, currentPosition.longitude),
@@ -640,17 +633,17 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Fetching location....",
-                          style:
-                              TextStyle(color: Color(0xff072a99), fontSize: 20),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
+                      children: const [
                         CircularProgressIndicator(
                           color: Color(0xff072a99),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          "Fetching Location",
+                          style: TextStyle(
+                            color: Color(0xff072a99),
+                            fontSize: 20,
+                          ),
                         ),
                       ],
                     ),
