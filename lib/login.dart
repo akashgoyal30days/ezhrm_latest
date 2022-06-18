@@ -253,9 +253,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                     icon: const Icon(Icons.cancel),
                     color: Colors.red,
                     iconSize: 30,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: Navigator.of(context).pop,
                   ),
                   const Text('Enter OTP',
                       style: TextStyle(fontWeight: FontWeight.bold)),
