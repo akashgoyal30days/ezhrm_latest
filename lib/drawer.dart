@@ -201,13 +201,13 @@ class CustomDrawer extends StatelessWidget {
                   navigator(context, const SalarySlip());
                 },
               ),
-              DashBoardItem(
-                title: "Join Meeting",
-                isSelected: currentScreen == AvailableDrawerScreens.joinMeeting,
-                onTap: () async {
-                  navigator(context, const MyMeetings());
-                },
-              ),
+              // DashBoardItem(
+              //   title: "Join Meeting",
+              //   isSelected: currentScreen == AvailableDrawerScreens.joinMeeting,
+              //   onTap: () async {
+              //     navigator(context, const MyMeetings());
+              //   },
+              // ),
               DashBoardItem(
                 title: "Upload Documents",
                 isSelected:
