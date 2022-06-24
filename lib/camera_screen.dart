@@ -363,13 +363,20 @@ class _CameraScreenState extends State<CameraScreen> {
                 currentlyTakingScreenshot)
               SizedBox.expand(
                 child: Container(
-                  color: Colors.black,
+                  color: Color(0xff072a99),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                       Center(
+                      Center(
                         child: CircularProgressIndicator(),
                       ),
-                      Text("Please wait", style: TextStyle(color: Color(0xff072a99)),)
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Please wait",
+                        style: TextStyle(color: Color(0xff072a99)),
+                      )
                     ],
                   ),
                 ),
