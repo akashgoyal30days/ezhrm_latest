@@ -309,7 +309,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
         'device_id': SharedPreferencesInstance.getString('deviceid') ?? "",
         'lat': locationRequired ? currentPosition.latitude.toString() : "",
         'long': locationRequired ? currentPosition.longitude.toString() : "",
-        'face_distance': faceDistance,
+        'face_distance': faceDistance??0,
         'img_data': sendRequest ? base64.encode(imageBytes) : "",
         'send_request': ableToSendRequest && sendRequest ? "1" : "0"
       };
