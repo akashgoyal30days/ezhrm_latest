@@ -7,12 +7,12 @@ Future loginUser(String email, String password, String did, String appversion,
   print(customurl);
   var uri = "$customurl/controller/process/app/login.php";
   final response = await http.post(uri, body: {
-    'email': email,
-    'password': password,
-    'device_id': did,
-    'device_id2': did,
-    'version': appversion,
-    'firebase': ftoken,
+    'email': email??"",
+    'password': password??"", 
+    'device_id': did??"",
+    'device_id2': did??"",
+    'version': appversion??"",
+    'firebase': ftoken??"",
     'platform': 'android',
   }, headers: <String, String>{
     'Accept': 'application/json',
