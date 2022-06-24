@@ -6,7 +6,6 @@ import 'dart:convert';
 
 import 'package:ezhrm/splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:device_info/device_info.dart';
@@ -14,7 +13,6 @@ import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/style.dart';
@@ -253,7 +251,9 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                     icon: const Icon(Icons.cancel),
                     color: Colors.red,
                     iconSize: 30,
-                    onPressed: Navigator.of(context).pop,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
                   ),
                   const Text('Enter OTP',
                       style: TextStyle(fontWeight: FontWeight.bold)),
@@ -416,18 +416,18 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
         message = rsp['msg'];
         visible = false;
       });
-      if (rsp['status'] == true) {
+      if (rsp['status'].toString() == "true") {
         await SharedPreferencesInstance.loginDataInitialise(rsp);
         if (rsp['data']['role'].toString().trim() == 'Attendance Manager') {
           setState(() {
             todash = false;
           });
-          SharedPreferencesInstance.setString('att_manager', '1'.toString());
+          SharedPreferencesInstance.setString('att_manager', '1');
         } else {
           setState(() {
             todash = true;
           });
-          SharedPreferencesInstance.setString('att_manager', '0'.toString());
+          SharedPreferencesInstance.setString('att_manager', '0');
         }
         restartApp();
         if (datak != null) {
@@ -644,7 +644,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (_) =>
-                                                            const Register())),
+                                                            const RegisterNewCompany())),
                                                 child: const Text(
                                                     "Register a New Company"),
                                                 style: ButtonStyle(

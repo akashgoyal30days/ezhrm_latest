@@ -7,12 +7,9 @@ import 'package:getwidget/components/loader/gf_loader.dart';
 
 import 'main.dart';
 import 'holiday.dart';
-import 'tattlist.dart';
 import 'constants.dart';
 import 'applyleave.dart';
 import 'leavestatus.dart';
-import 'temareimlist.dart';
-import 'teamleavelist.dart';
 import 'markattendance_new.dart';
 import 'attendance_history_new.dart';
 import 'request_attendance_new.dart';
@@ -138,8 +135,6 @@ class HomePageState extends State<HomePage> {
     fetchList();
     getEmail();
   }
-
- 
 
   var loader = 'show';
   @override
@@ -808,53 +803,53 @@ class HomePageState extends State<HomePage> {
               ],
             ),
             // if (mymgmt == '1')
-              // Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              //   const Padding(
-              //     padding: EdgeInsets.only(top: 25, right: 30.0, left: 30),
-              //     child: Text(
-              //       "Manage your team",
-              //       style: TextStyle(
-              //         fontSize: 16,
-              //         fontWeight: FontWeight.bold,
-              //         color: Color(0xff072a99),
-              //       ),
-              //     ),
-              //   ),
-              //   const SizedBox(height: 10),
-              //   SingleChildScrollView(
-              //     scrollDirection: Axis.horizontal,
-              //     physics: const BouncingScrollPhysics(),
-              //     child: Row(
-              //       crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: <Widget>[
-              //         const SizedBox(width: 22),
-              //         ManageTeamWidgets(
-              //           title: "Manage Team's Reimbursment",
-              //           onTap: () => Navigator.push(
-              //             context,
-              //             MaterialPageRoute(builder: (_) => const TrList()),
-              //           ),
-              //         ),
-              //         ManageTeamWidgets(
-              //           title: "Manage Team's Leave",
-              //           onTap: () => Navigator.push(
-              //             context,
-              //             MaterialPageRoute(builder: (_) => const LeaveList()),
-              //           ),
-              //         ),
-              //         ManageTeamWidgets(
-              //           title: "Manage Team's Attendance",
-              //           onTap: () => Navigator.push(
-              //             context,
-              //             MaterialPageRoute(
-              //                 builder: (_) => const TeamAttList()),
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              //   const SizedBox(height: 10),
-              // ]),
+            // Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            //   const Padding(
+            //     padding: EdgeInsets.only(top: 25, right: 30.0, left: 30),
+            //     child: Text(
+            //       "Manage your team",
+            //       style: TextStyle(
+            //         fontSize: 16,
+            //         fontWeight: FontWeight.bold,
+            //         color: Color(0xff072a99),
+            //       ),
+            //     ),
+            //   ),
+            //   const SizedBox(height: 10),
+            //   SingleChildScrollView(
+            //     scrollDirection: Axis.horizontal,
+            //     physics: const BouncingScrollPhysics(),
+            //     child: Row(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: <Widget>[
+            //         const SizedBox(width: 22),
+            //         ManageTeamWidgets(
+            //           title: "Manage Team's Reimbursment",
+            //           onTap: () => Navigator.push(
+            //             context,
+            //             MaterialPageRoute(builder: (_) => const TrList()),
+            //           ),
+            //         ),
+            //         ManageTeamWidgets(
+            //           title: "Manage Team's Leave",
+            //           onTap: () => Navigator.push(
+            //             context,
+            //             MaterialPageRoute(builder: (_) => const LeaveList()),
+            //           ),
+            //         ),
+            //         ManageTeamWidgets(
+            //           title: "Manage Team's Attendance",
+            //           onTap: () => Navigator.push(
+            //             context,
+            //             MaterialPageRoute(
+            //                 builder: (_) => const TeamAttList()),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            //   const SizedBox(height: 10),
+            // ]),
             Padding(
               padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
               child: Container(

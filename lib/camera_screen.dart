@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -10,20 +11,22 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 
-// THIS SCREEN RETUENS BYTES OF IMAGE IN Navigator.pop(context)
+// THIS SCREEN RETURNS BYTES OF IMAGE IN Navigator.pop(context)
 
-enum CameraType {frontCamera, rearCamera}
+enum CameraType { frontCamera, rearCamera }
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen(
       {this.callBack,
       this.showFrame = true,
       this.cameraType = CameraType.frontCamera,
+      this.imageSizeShouldBeLessThan200kB = false,
+      this.decreaseImageSizeByHalf = false,
       Key key})
       : super(key: key);
   final Function(Uint8List) callBack;
   final CameraType cameraType;
-  final bool showFrame;
+  final bool showFrame, imageSizeShouldBeLessThan200kB, decreaseImageSizeByHalf;
   @override
   State<CameraScreen> createState() => _CameraScreenState();
 }
@@ -35,6 +38,8 @@ class _CameraScreenState extends State<CameraScreen> {
       showImagePreview = false,
       currentlyTakingScreenshot = false;
   Uint8List savedImageBytes;
+
+  int marginForImage = 15;
 
   @override
   void initState() {
@@ -66,218 +71,311 @@ class _CameraScreenState extends State<CameraScreen> {
     });
   }
 
+  int actualImageSize;
   done() async {
     setState(() {
       currentlyTakingScreenshot = true;
     });
-    var bytes = await _screenshotController.capture();
-    if (widget.callBack != null) widget.callBack(bytes);
-    Navigator.pop(this.context, bytes);
+
+    while (true) {
+      var bytes;
+      try {
+        bytes = await _screenshotController.capture();
+      } catch (e) {
+        setState(() {
+          marginForImage = marginForImage + 3;
+        });
+        bytes = await _screenshotController.capture();
+        log("actual image size is ${actualImageSize / 1000}kB, now image size is ${bytes.length / 1000}kB");
+        if (widget.callBack != null) widget.callBack(bytes);
+        Navigator.pop(this.context, bytes);
+        break;
+      }
+      actualImageSize ??= bytes.length;
+      log("${bytes.length / 1000} kB");
+      if (widget.imageSizeShouldBeLessThan200kB && bytes.length / 1000 >= 250) {
+        log("decereasing image size");
+        setState(() {
+          marginForImage = marginForImage - 3;
+        });
+        continue;
+      }
+      // if (widget.decreaseImageSizeByHalf &&
+      //     bytes.length > (actualImageSize / 1.5)) {
+      //   log("decereasing image size by half");
+      //   setState(() {
+      //     marginForImage = marginForImage - 2;
+      //   });
+      //   continue;
+      // }
+      log("actual image size is ${actualImageSize / 1000}kB, now image size is ${bytes.length / 1000}kB");
+      if (widget.callBack != null) widget.callBack(bytes);
+      Navigator.pop(this.context, bytes);
+      break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.black,
-        body: SafeArea(
-            child: showLoading
-                ? Center(
-                    child: LoadingAnimationWidget.newtonCradle(
-                      color: Colors.white,
-                      size: 80,
-                    ),
-                  )
-                : Column(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onDoubleTap: () {
-                            if (showImagePreview) return;
-                            capturePhoto();
-                          },
-                          child: Screenshot(
-                            controller: _screenshotController,
-                            child: Material(
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
+        body: Stack(
+          children: [
+            SafeArea(
+                child: showLoading
+                    ? Center(
+                        child: LoadingAnimationWidget.newtonCradle(
+                          color: Colors.white,
+                          size: 80,
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: LayoutBuilder(
+                              builder: (_, constratints) {
+                                return GestureDetector(
+                                  onDoubleTap: () {
+                                    if (showImagePreview) return;
+                                    capturePhoto();
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        (widget.imageSizeShouldBeLessThan200kB) &&
+                                                currentlyTakingScreenshot
+                                            ? EdgeInsets.symmetric(
+                                                vertical:
+                                                    (constratints.maxHeight) /
+                                                        marginForImage,
+                                                horizontal:
+                                                    (constratints.maxWidth) /
+                                                        marginForImage,
+                                              )
+                                            : widget.decreaseImageSizeByHalf &&
+                                                    currentlyTakingScreenshot
+                                                ? EdgeInsets.symmetric(
+                                                    vertical: (constratints
+                                                            .maxHeight) /
+                                                        10,
+                                                    horizontal: (constratints
+                                                            .maxWidth) /
+                                                        10,
+                                                  )
+                                                : EdgeInsets.zero,
+                                    child: Screenshot(
+                                      controller: _screenshotController,
+                                      child: Material(
+                                        child: Stack(
+                                          fit: StackFit.expand,
+                                          children: [
+                                            showImagePreview
+                                                ? Transform(
+                                                    alignment: Alignment.center,
+                                                    transform: widget
+                                                                .cameraType ==
+                                                            CameraType
+                                                                .frontCamera
+                                                        ? Matrix4.rotationY(
+                                                            math.pi)
+                                                        : Matrix4.rotationX(0),
+                                                    child: Image.memory(
+                                                      savedImageBytes,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  )
+                                                : CameraPreview(
+                                                    _cameraController),
+                                            if (widget.cameraType ==
+                                                    CameraType.frontCamera &&
+                                                widget.showFrame)
+                                              ColorFiltered(
+                                                colorFilter:
+                                                    const ColorFilter.mode(
+                                                  Colors.black,
+                                                  BlendMode.srcOut,
+                                                ), // This one will create the magic
+                                                child: Stack(
+                                                  fit: StackFit.expand,
+                                                  children: [
+                                                    Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        color: Colors.black,
+                                                        backgroundBlendMode:
+                                                            BlendMode.dstOut,
+                                                      ), // This one will handle background + difference out
+                                                    ),
+                                                    SizedBox.expand(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(18.0),
+                                                        child: ClipOval(
+                                                          child: Container(
+                                                            decoration:
+                                                                const BoxDecoration(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (widget.showFrame &&
+                              widget.cameraType == CameraType.frontCamera)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
                                   showImagePreview
-                                      ? Transform(
-                                          alignment: Alignment.center,
-                                          transform: widget.cameraType ==
-                                                  CameraType.frontCamera
-                                              ? Matrix4.rotationY(math.pi)
-                                              : Matrix4.rotationX(0),
-                                          child: Image.memory(
-                                            savedImageBytes,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )
-                                      : CameraPreview(_cameraController),
-                                  if (widget.cameraType ==
-                                          CameraType.frontCamera &&
-                                      widget.showFrame)
-                                    ColorFiltered(
-                                      colorFilter: const ColorFilter.mode(
-                                        Colors.black,
-                                        BlendMode.srcOut,
-                                      ), // This one will create the magic
-                                      child: Stack(
-                                        fit: StackFit.expand,
-                                        children: [
-                                          Container(
-                                            decoration: const BoxDecoration(
-                                              color: Colors.black,
-                                              backgroundBlendMode:
-                                                  BlendMode.dstOut,
-                                            ), // This one will handle background + difference out
-                                          ),
-                                          SizedBox.expand(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(18.0),
-                                              child: ClipOval(
-                                                child: Container(
-                                                  decoration:
-                                                      const BoxDecoration(
+                                      ? "Please make sure that your face is inside the Frame"
+                                      : "Please Keep Your Face Inside The Frame",
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                              height: 56,
+                              child: !showImagePreview
+                                  ? Stack(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Spacer(flex: 4),
+                                            GestureDetector(
+                                              onTap: Navigator.of(context).pop,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: const [
+                                                  Icon(
+                                                    Icons.clear,
                                                     color: Colors.white,
                                                   ),
-                                                ),
+                                                  Text(
+                                                    "Cancel",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  )
+                                                ],
                                               ),
+                                            ),
+                                            const Spacer(
+                                              flex: 1,
+                                            ),
+                                          ],
+                                        ),
+                                        GestureDetector(
+                                          onTap: capturePhoto,
+                                          child: const _ShutterButton(),
+                                        ),
+                                      ],
+                                    )
+                                  : SizedBox(
+                                      height: 56,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                savedImageBytes = null;
+                                                showImagePreview = false;
+                                              });
+                                            },
+                                            child: Column(
+                                              children: const [
+                                                Icon(
+                                                  Icons.refresh,
+                                                  color: Colors.white,
+                                                  size: 30,
+                                                ),
+                                                Text(
+                                                  "Retake",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: done,
+                                            child: Container(
+                                              child: Column(
+                                                children: const [
+                                                  Icon(
+                                                    Icons.done,
+                                                    color: Colors.green,
+                                                    size: 30,
+                                                  ),
+                                                  Text(
+                                                    "Done",
+                                                    style: TextStyle(
+                                                        color: Colors.green),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: Navigator.of(context).pop,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: const [
+                                                Icon(
+                                                  Icons.clear,
+                                                  color: Colors.white,
+                                                ),
+                                                Text(
+                                                  "Cancel",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                )
+                                              ],
                                             ),
                                           ),
                                         ],
                                       ),
-                                    )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                                    )),
+                          const SizedBox(height: 10),
+                        ],
+                      )),
+            if ((widget.imageSizeShouldBeLessThan200kB ||
+                    widget.decreaseImageSizeByHalf) &&
+                currentlyTakingScreenshot)
+              SizedBox.expand(
+                child: Container(
+                  color: Colors.black,
+                  child: Column(
+                    children: const [
+                       Center(
+                        child: CircularProgressIndicator(),
                       ),
-                      const SizedBox(height: 8),
-                      if (widget.showFrame &&
-                          widget.cameraType == CameraType.frontCamera)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              showImagePreview
-                                  ? "Please make sure that your face is inside the Frame"
-                                  : "Please Keep Your Face Inside The Frame",
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                          height: 56,
-                          child: !showImagePreview
-                              ? Stack(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Spacer(flex: 4),
-                                        GestureDetector(
-                                          onTap: Navigator.of(context).pop,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: const [
-                                              Icon(
-                                                Icons.clear,
-                                                color: Colors.white,
-                                              ),
-                                              Text(
-                                                "Cancel",
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        const Spacer(
-                                          flex: 1,
-                                        ),
-                                      ],
-                                    ),
-                                    GestureDetector(
-                                      onTap: capturePhoto,
-                                      child: const _ShutterButton(),
-                                    ),
-                                  ],
-                                )
-                              : SizedBox(
-                                  height: 56,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            savedImageBytes = null;
-                                            showImagePreview = false;
-                                          });
-                                        },
-                                        child: Column(
-                                          children: const [
-                                            Icon(
-                                              Icons.refresh,
-                                              color: Colors.white,
-                                              size: 30,
-                                            ),
-                                            Text(
-                                              "Retake",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: done,
-                                        child: Column(
-                                          children: const [
-                                            Icon(
-                                              Icons.done,
-                                              color: Colors.green,
-                                              size: 30,
-                                            ),
-                                            Text(
-                                              "Done",
-                                              style: TextStyle(
-                                                  color: Colors.green),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: Navigator.of(context).pop,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: const [
-                                            Icon(
-                                              Icons.clear,
-                                              color: Colors.white,
-                                            ),
-                                            Text(
-                                              "Cancel",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )),
-                      const SizedBox(height: 10),
+                      Text("Please wait", style: TextStyle(color: Color(0xff072a99)),)
                     ],
-                  )));
+                  ),
+                ),
+              )
+          ],
+        ));
   }
 
   //----------START Widget Functions-----------
@@ -351,11 +449,11 @@ class MapButton extends StatelessWidget {
         padding: const EdgeInsets.all(4),
         child: Icon(
           iconData,
-          color: const Color(0xff072a99),
+          color: Colors.white,
         ),
         alignment: Alignment.center,
-        decoration:
-            const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+            color: Color(0xff072a99072a99), shape: BoxShape.circle),
       ),
     );
   }

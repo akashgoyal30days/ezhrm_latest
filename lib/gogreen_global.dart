@@ -31,10 +31,8 @@ class GoGreenGlobal {
 
       datak = json.decode(response.body);
       SharedPreferencesInstance.saveLogs(
-          response.request.url.toString(),
-          json.encode(body),
-          response.body,
-          apiEndTime.difference(apiStartTime).inSeconds);
+          response.request.url.toString(), json.encode(body), response.body,
+          duration: apiEndTime.difference(apiStartTime).inSeconds);
       if (datak.containsKey('code')) val = datak['code'].toString();
       if (datak['status'].toString() != "true") {
         return await SharedPreferencesInstance.logOut();

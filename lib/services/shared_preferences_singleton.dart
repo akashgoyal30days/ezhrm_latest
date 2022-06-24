@@ -17,20 +17,16 @@ class SharedPreferencesInstance {
     await instance.clear();
   }
 
-  static saveLastLocation(Position position) async {
-    if (position == null) return;
-    await setString("lat", position.latitude.toString());
-    await setString("long", position.longitude.toString());
-  }
-
-  static Position getLastLocation() => Position(
-      latitude: double.parse(getString('lat') ?? "22.9734"),
-      longitude: double.parse(getString('long') ?? "78.9629"));
-
-  static saveLogs(url, request, response, [duration = "unknown"]) {
+  static saveLogs(
+    url,
+    request,
+    response, {
+    additionalInfo = "not Available",
+    duration = "unknown",
+  }) {
     List<String> logFiles = getLogs;
     logFiles.insert(0,
-        "${DateTime.now()}\n\n$url\n\nduration: $duration seconds\n\nrequest:\n$request\n\nresponse:\n$response");
+        "${DateTime.now()}\n\n$url\n\nduration: $duration seconds\n\nrequest:\n$request\n\nresponse:\n$response\n\nadditional Info:$additionalInfo");
     instance.setStringList("logfiles", logFiles);
   }
 

@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
@@ -45,7 +46,7 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
       // if (goGreenModel.backgroundLocationTrackingEnabled) {
       //   showLocationTrackingDialog();
       // }
-      if (goGreenModel.showUpdateAvailableDialog) showUpdate();
+      //if (goGreenModel.showUpdateAvailableDialog) showUpdate();
     });
   }
 
@@ -53,8 +54,9 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
         context: context,
         builder: (context) {
           return WillPopScope(
-            onWillPop: () {
+            onWillPop: () async {
               Navigator.pop(context);
+              return false;
             },
             child: Theme(
               data: ThemeData.light(),
@@ -139,38 +141,41 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
   checkGPSStatus() async {
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        try {
+      var permissions = await PermissionHandler().requestPermissions([
+        PermissionGroup.locationWhenInUse,
+        PermissionGroup.location,
+      ]);
+      if (permissions[PermissionGroup.locationWhenInUse] ==
+              PermissionStatus.denied &&
+          permissions[PermissionGroup.location] == PermissionStatus.denied) {
+        if (mounted) {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
-              "Location permission is denied, please enable from settings",
+              "Location permission is denied",
               textAlign: TextAlign.center,
             ),
-            duration: Duration(seconds: 10),
             backgroundColor: Colors.red,
           ));
-        } catch (e) {
-          //
         }
-        return;
-      } else if (permission == LocationPermission.deniedForever) {
-        try {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-              "Please Goto Settings and enable Location Permission",
-              textAlign: TextAlign.center,
-            ),
-            duration: Duration(seconds: 10),
-            backgroundColor: Colors.red,
-          ));
-        } catch (e) {
-          //
-        }
+        Navigator.pop(context);
         return;
       }
+    }
+    var locationEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!locationEnabled) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+            "Please Turn your GPS ON",
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.red,
+        ));
+      }
+      Navigator.pop(context);
+      return;
     }
     var servicestatus = await Geolocator.isLocationServiceEnabled();
     if (!servicestatus) {
@@ -293,7 +298,6 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
             currentScreen: AvailableDrawerScreens.dashboard),
         body: PageView(
           controller: _pageController,
-          physics: const NeverScrollableScrollPhysics(),
           children: [
             HomePage(
                 key: homeKey,

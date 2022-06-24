@@ -43,7 +43,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
   final List attendanceRecordsList = [];
   GoogleMapController _googleMapController;
   StreamSubscription locationUpdateStream;
-  LatLng initialLocation;
   Uint8List imageBytes;
   String messageOnScreen, attendanceRecordStatus;
   MapType mapType = MapType.normal;
@@ -52,8 +51,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
   @override
   void initState() {
     fetchAttendanceRecords();
-    var position = SharedPreferencesInstance.getLastLocation();
-    initialLocation = LatLng(position.latitude, position.longitude);
     super.initState();
   }
 
@@ -62,7 +59,10 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
       return Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CameraScreen(callBack: getImage),
+          builder: (context) => CameraScreen(
+            callBack: getImage,
+            imageSizeShouldBeLessThan200kB: true,
+          ),
         ),
       );
     }
@@ -149,12 +149,13 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
 
   updateLocationOnMap(Position positon) async {
     currentPosition = positon;
-    if (mounted) {
-      setState(() {
-        showLoadingSpinnerOnTop = true;
-      });
-      setMarkerOnMap();
-    }
+    if (!mounted) return;
+
+    setState(() {
+      showLoadingSpinnerOnTop = true;
+    });
+    setMarkerOnMap();
+
     await _googleMapController?.animateCamera(CameraUpdate.newCameraPosition(
       CameraPosition(
         target: LatLng(currentPosition.latitude, currentPosition.longitude),
@@ -248,10 +249,9 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
       log(response.body);
       var apiEnd = DateTime.now();
       SharedPreferencesInstance.saveLogs(
-          "both token + face recog",
-          json.encode(request.fields),
-          response.body,
-          apiEnd.difference(apiStart).inSeconds);
+          "both token + face recog", json.encode(request.fields), response.body,
+          duration: apiEnd.difference(apiStart).inSeconds,
+          additionalInfo: "image bytes in kb is ${imageBytes.length / 1000}kB");
       markAttendanceAPI(
           faceDistance: json.decode(response.body)["distance"].toString());
     } catch (e) {
@@ -338,9 +338,8 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
         response.request.url.toString(),
         json.encode(logBody),
         response.body,
-        apiEndTime.difference(apiStartTime).inSeconds,
+        duration: apiEndTime.difference(apiStartTime).inSeconds,
       );
-      SharedPreferencesInstance.saveLastLocation(currentPosition);
       log("MARK ATTENDANCE RESPONSE :" + response.body);
       Map data = json.decode(response.body);
       showProcessingOverlay(false);
@@ -575,7 +574,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                           style: TextStyle(color: Colors.black, fontSize: 16),
                           children: [
                         TextSpan(
-                            text: "Sorry!  Out of  Range\n",
+                            text: "Sorry! Out of Range\n",
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         TextSpan(text: "Do you want to send request to admin?")
                       ])),
@@ -610,7 +609,9 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
       imageBytes = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const CameraScreen(),
+          builder: (context) => const CameraScreen(
+            imageSizeShouldBeLessThan200kB: true,
+          ),
         ),
       );
       if (imageBytes == null) return;
@@ -650,7 +651,10 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                   )
                 : GoogleMap(
                     initialCameraPosition: CameraPosition(
-                      target: initialLocation,
+                      target: LatLng(
+                        currentPosition.latitude,
+                        currentPosition.longitude,
+                      ),
                       zoom: 18,
                     ),
                     mapType: mapType,
@@ -783,7 +787,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                                               tag: "The Button",
                                               child: ElevatedButton(
                                                 onPressed: () async {
-                                                  // locationOutOfRangeDialog();
+                                                  locationOutOfRangeDialog();
                                                 },
                                                 child: const Text(
                                                     "Location is out of Range"),
@@ -856,7 +860,10 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     CameraScreen(
-                                                        callBack: getImage),
+                                                  callBack: getImage,
+                                                  imageSizeShouldBeLessThan200kB:
+                                                      true,
+                                                ),
                                               ),
                                             );
                                           } else {

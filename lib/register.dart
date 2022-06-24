@@ -20,14 +20,14 @@ GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
 Timer timer;
 
-class Register extends StatefulWidget {
-  const Register({Key key}) : super(key: key);
+class RegisterNewCompany extends StatefulWidget {
+  const RegisterNewCompany({Key key}) : super(key: key);
 
   @override
-  _RegisterState createState() => _RegisterState();
+  _RegisterNewCompanyState createState() => _RegisterNewCompanyState();
 }
 
-class _RegisterState extends State<Register> {
+class _RegisterNewCompanyState extends State<RegisterNewCompany> {
   String _platformVersion = 'Unknown';
   String btnstate;
   String message = '';

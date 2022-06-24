@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:ezhrm/camera_screen.dart';
@@ -44,9 +45,10 @@ class _UploadImagesScreenState extends State<UploadImagesScreen> {
     var bytes = await Navigator.push<Uint8List>(
       context,
       MaterialPageRoute(
-        builder: (_) => const CameraScreen(),
+        builder: (_) => const CameraScreen(decreaseImageSizeByHalf: true),
       ),
     );
+    log("size of the image is ${bytes.length / 1000}kB");
     if (bytes != null) {
       setState(() {
         imageBytes[index] = bytes;

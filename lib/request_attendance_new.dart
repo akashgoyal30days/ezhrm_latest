@@ -224,12 +224,11 @@ class _RequestAttendanceState extends State<RequestAttendance> {
         response.request.url.toString(),
         json.encode(logBody),
         response.body,
-        apiEndTime.difference(apiStartTime).inSeconds
+        duration:apiEndTime.difference(apiStartTime).inSeconds
       );
       log(response.body);
       Map data = json.decode(response.body);
       log(data.toString());
-
       setState(() {
         attendanceloadingOverlay = false;
       });

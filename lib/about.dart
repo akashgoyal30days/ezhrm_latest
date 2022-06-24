@@ -83,7 +83,7 @@ class _AboutState extends State<About>
                       ),
                     ),
                     Text(
-                      'v$version',
+                      'v$version+$buildNumber',
                       style: TextStyle(
                         fontSize: MediaQuery.of(context).size.width / 25,
                         fontFamily: font1,

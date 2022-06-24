@@ -4,11 +4,10 @@ import 'constants.dart';
 
 Future loginUser(String email, String password, String did, String appversion,
     String ftoken) async {
-  print(customurl);
   var uri = "$customurl/controller/process/app/login.php";
   final response = await http.post(uri, body: {
     'email': email??"",
-    'password': password??"", 
+    'password': password??"",
     'device_id': did??"",
     'device_id2': did??"",
     'version': appversion??"",
