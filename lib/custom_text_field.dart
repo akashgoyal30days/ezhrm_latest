@@ -24,7 +24,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: TextField(
         controller: widget.controller,
         obscureText: widget.isPassword ? obscureText : false,
@@ -54,7 +54,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           color: Color(0xff072a99),
                         ))
               : null,
-          fillColor: const Color(0x33072a99),
+          fillColor: Colors.grey.shade300,
           filled: true,
           contentPadding: const EdgeInsets.all(10),
           hintText: widget.hint,

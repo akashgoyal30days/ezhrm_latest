@@ -48,6 +48,7 @@ class _AboutState extends State<About>
                   children: [
                     GestureDetector(
                       onTap: () {
+                        if (!goGreenModel.debugEnable) return;
                         if (buttonClickCount == 5) {
                           Navigator.push(
                               context,

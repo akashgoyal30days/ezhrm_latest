@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ezhrm/error_api.dart';
 import 'package:ezhrm/login.dart';
 import 'package:ezhrm/drawer.dart';
 import 'package:ezhrm/main.dart';
@@ -119,6 +120,11 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
     locationUpdateStream =
         Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high)
             .listen(updateLocationOnMap);
+    await Future.delayed(const Duration(seconds: 10));
+    if (mounted && currentPosition == null) {
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (_) => const MarkAttendanceScreen()));
+    }
   }
 
   Future<bool> checkUserLocationValidity() async {
@@ -225,9 +231,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
           'Accept': 'application/json',
         },
       );
-      log(tokenResponse.body);
       var token = json.decode(tokenResponse.body)['token'];
-      log("token is $token");
       // FACE RECOG REQUEST
       var request = http.MultipartRequest(
         "POST",
@@ -246,7 +250,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
       request.files
           .add(await http.MultipartFile.fromPath('image_file', file.path));
       var response = await http.Response.fromStream(await request.send());
-      log(response.body);
       var apiEnd = DateTime.now();
       SharedPreferencesInstance.saveLogs(
           "both token + face recog", json.encode(request.fields), response.body,
@@ -257,7 +260,16 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
     } catch (e) {
       log(e.toString());
       showProcessingOverlay(false);
-
+      SharedPreferencesInstance.saveError(e.toString());
+      ErrorAPI.errorOccuredAPI(
+        e.toString(),
+        url: "$customurl/controller/process/app/attendance_mark.php",
+        body: {
+          'type': 'face_token',
+          'uid': SharedPreferencesInstance.getString('uid') ?? "",
+          'cid': SharedPreferencesInstance.getString('comp_id') ?? "",
+        }.toString(),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -289,12 +301,13 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "Location not captured, please enable location",
+            "Location not captured, please try again",
             textAlign: TextAlign.center,
           ),
           backgroundColor: Colors.red,
         ),
       );
+      SharedPreferencesInstance.saveError("location Enabled: ${await Geolocator.isLocationServiceEnabled()} location Not captured");
       showProcessingOverlay(false);
       return;
     }
@@ -309,7 +322,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
         'device_id': SharedPreferencesInstance.getString('deviceid') ?? "",
         'lat': locationRequired ? currentPosition.latitude.toString() : "",
         'long': locationRequired ? currentPosition.longitude.toString() : "",
-        'face_distance': faceDistance??0,
+        'face_distance': faceDistance ?? 0,
         'img_data': sendRequest ? base64.encode(imageBytes) : "",
         'send_request': ableToSendRequest && sendRequest ? "1" : "0"
       };
@@ -320,8 +333,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
           'Accept': 'application/json',
         },
       );
-      log("url :" + response.request.url.toString());
-      log("data we are sending in mark_attendance" + body.toString());
       var apiEndTime = DateTime.now();
       var logBody = {
         'type': 'mark_attendance',
@@ -340,7 +351,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
         response.body,
         duration: apiEndTime.difference(apiStartTime).inSeconds,
       );
-      log("MARK ATTENDANCE RESPONSE :" + response.body);
       Map data = json.decode(response.body);
       showProcessingOverlay(false);
 
@@ -643,7 +653,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                           "Fetching Location",
                           style: TextStyle(
                             color: Color(0xff072a99),
-                            fontSize: 20,
                           ),
                         ),
                       ],

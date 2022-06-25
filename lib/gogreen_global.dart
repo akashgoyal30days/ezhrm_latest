@@ -30,6 +30,7 @@ class GoGreenGlobal {
       var apiEndTime = DateTime.now();
 
       datak = json.decode(response.body);
+      log(datak.toString());
       SharedPreferencesInstance.saveLogs(
           response.request.url.toString(), json.encode(body), response.body,
           duration: apiEndTime.difference(apiStartTime).inSeconds);
@@ -52,7 +53,8 @@ class GoGreenModel {
       faceRecognitionEnabled,
       locationEnabled,
       canSendRequest,
-      showUpdateAvailableDialog;
+      showUpdateAvailableDialog,
+      debugEnable;
   final String companyName, companyLogo;
   final int backgroundLocationInterval;
 
@@ -60,6 +62,7 @@ class GoGreenModel {
       {this.backgroundLocationTrackingEnabled,
       this.faceRecognitionEnabled,
       this.showUpdateAvailableDialog,
+      this.debugEnable,
       this.locationEnabled,
       this.canSendRequest,
       this.companyName,

@@ -43,10 +43,10 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
     super.didChangeDependencies();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // if (goGreenModel.backgroundLocationTrackingEnabled) {
-      //   showLocationTrackingDialog();
-      // }
-      //if (goGreenModel.showUpdateAvailableDialog) showUpdate();
+      if (goGreenModel.backgroundLocationTrackingEnabled) {
+        showLocationTrackingDialog();
+      }
+      // if (goGreenModel.showUpdateAvailableDialog) showUpdate();
     });
   }
 
@@ -125,16 +125,19 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
   //-------------LOCATION START API ------------------
 
   showLocationTrackingDialog() async {
-    bool clickedOnAllow = await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => const WarningDialog(),
-        ) ??
-        false;
+    bool clickedOnAllow = SharedPreferencesInstance.approvedBackgroundTracking
+        ? true
+        : await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => const WarningDialog(),
+            ) ??
+            false;
     if (!clickedOnAllow) {
       SystemNavigator.pop();
       return;
     }
+    SharedPreferencesInstance.instance.setBool("backgroundPermissionStatus", true);
     checkGPSStatus();
   }
 
@@ -298,6 +301,7 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
             currentScreen: AvailableDrawerScreens.dashboard),
         body: PageView(
           controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             HomePage(
                 key: homeKey,

@@ -30,6 +30,15 @@ class SharedPreferencesInstance {
     instance.setStringList("logfiles", logFiles);
   }
 
+  static saveError(error) {
+    List<String> logFiles = getLogs;
+    logFiles.insert(0, "error:\n$error");
+    instance.setStringList("logfiles", logFiles);
+  }
+
+  static bool get approvedBackgroundTracking =>
+      instance.getBool("backgroundPermissionStatus") ?? false;
+
   static List<String> get getLogs => instance.getStringList("logfiles") ?? [];
 
   static saveUserProfileData(data) async {

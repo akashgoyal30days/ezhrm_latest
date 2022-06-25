@@ -1,6 +1,8 @@
+import 'package:ezhrm/Assigned_work.dart';
 import 'package:ezhrm/about.dart';
 import 'package:ezhrm/advance.dart';
 import 'package:ezhrm/applycompoff.dart';
+import 'package:ezhrm/upload_csr.dart';
 import 'package:ezhrm/upload_documents.dart';
 import 'package:ezhrm/feedback.dart';
 import 'package:ezhrm/holiday.dart';
@@ -13,6 +15,9 @@ import 'package:ezhrm/request_attendance_new.dart';
 import 'package:ezhrm/services/shared_preferences_singleton.dart';
 import 'package:ezhrm/salary_slip.dart';
 import 'package:ezhrm/uploadimg_new.dart';
+import 'package:ezhrm/view_csr_actiivity.dart';
+import 'package:ezhrm/view_todo_list.dart';
+import 'package:ezhrm/work_reporting.dart';
 import 'package:ezhrm/workfromhome.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +41,11 @@ enum AvailableDrawerScreens {
   reimbursment,
   advanceSalary,
   loan,
+  Csrviewactivity,
+  csrpostactivity,
+  TodoList,
+  AssignedWork,
+  WorkReporting,
   joinMeeting,
   uploadDocuments,
   faceRecognitionImages,
@@ -232,6 +242,57 @@ class CustomDrawer extends StatelessWidget {
               //     navigator(context, const ChangePasswordScreen());
               //   },
               // ),
+              DrawerDropDownButton(
+                title: "CSR",
+                items: [
+                  DashBoardItem(
+                    title: "Post Activity",
+                    isSelected:
+                        currentScreen == AvailableDrawerScreens.csrpostactivity,
+                    onTap: () async {
+                      navigator(context, const CSRUploadActivity());
+                    },
+                  ),
+                  DashBoardItem(
+                    title: "View Activity",
+                    isSelected:
+                        currentScreen == AvailableDrawerScreens.Csrviewactivity,
+                    onTap: () async {
+                      navigator(context, ViewCSRactivity());
+                    },
+                  ),
+                ],
+              ),
+              DrawerDropDownButton(
+                title: "Task Management",
+                items: [
+                  DashBoardItem(
+                    title: "To do List",
+                    isSelected:
+                        currentScreen == AvailableDrawerScreens.TodoList,
+                    onTap: () async {
+                      navigator(context, ViewTodoList());
+                    },
+                  ),
+                  DashBoardItem(
+                    title: "Assigned Work",
+                    isSelected:
+                        currentScreen == AvailableDrawerScreens.AssignedWork,
+                    onTap: () async {
+                      navigator(context, Assigned_work());
+                    },
+                  ),
+                  DashBoardItem(
+                    title: "Work Reporting",
+                    isSelected:
+                        currentScreen == AvailableDrawerScreens.WorkReporting,
+                    onTap: () async {
+                      navigator(context, WorkReporting());
+                    },
+                  ),
+                ],
+              ),
+
               DashBoardItem(
                 title: "Feedback",
                 isSelected: currentScreen == AvailableDrawerScreens.feedback,

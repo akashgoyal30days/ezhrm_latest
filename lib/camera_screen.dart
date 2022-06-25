@@ -78,7 +78,7 @@ class _CameraScreenState extends State<CameraScreen> {
     });
 
     while (true) {
-      var bytes;
+      Uint8List bytes;
       try {
         bytes = await _screenshotController.capture();
       } catch (e) {
@@ -316,21 +316,19 @@ class _CameraScreenState extends State<CameraScreen> {
                                           ),
                                           GestureDetector(
                                             onTap: done,
-                                            child: Container(
-                                              child: Column(
-                                                children: const [
-                                                  Icon(
-                                                    Icons.done,
-                                                    color: Colors.green,
-                                                    size: 30,
-                                                  ),
-                                                  Text(
-                                                    "Done",
-                                                    style: TextStyle(
-                                                        color: Colors.green),
-                                                  )
-                                                ],
-                                              ),
+                                            child: Column(
+                                              children: const [
+                                                Icon(
+                                                  Icons.done,
+                                                  color: Colors.green,
+                                                  size: 30,
+                                                ),
+                                                Text(
+                                                  "Done",
+                                                  style: TextStyle(
+                                                      color: Colors.green),
+                                                )
+                                              ],
                                             ),
                                           ),
                                           GestureDetector(
@@ -361,26 +359,31 @@ class _CameraScreenState extends State<CameraScreen> {
             if ((widget.imageSizeShouldBeLessThan200kB ||
                     widget.decreaseImageSizeByHalf) &&
                 currentlyTakingScreenshot)
-              SizedBox.expand(
-                child: Container(
-                  color: Color(0xff072a99),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "Please wait",
-                        style: TextStyle(color: Color(0xff072a99)),
-                      )
-                    ],
-                  ),
+            SizedBox.expand(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    LoadingAnimationWidget.threeRotatingDots(
+                      color: Colors.white70,
+                      size: 60,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Text("Please wait",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          )),
+                    )
+                  ],
                 ),
-              )
+                decoration: const BoxDecoration(
+                  color: Color(0xff072a99),
+                ),
+              ),
+            )
           ],
         ));
   }
@@ -460,7 +463,9 @@ class MapButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         decoration: const BoxDecoration(
-            color: Color(0xff072a99072a99), shape: BoxShape.circle),
+          color: Color(0xff072a99),
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }

@@ -69,8 +69,9 @@ initializeApp() async {
     locationEnabled: datak["attendance_location"].toString() == "1",
     faceRecognitionEnabled: datak["face_recog"].toString() == "1",
     backgroundLocationTrackingEnabled: datak["loc_track"].toString() == "1",
-    companyLogo: datak["comp_name"],
-    companyName: datak["comp_logo"],
+    companyLogo: datak["comp_logo"],
+    companyName: datak["comp_name"],
+    debugEnable: datak["debug_enable"].toString() == "true",
     showUpdateAvailableDialog: datak['code'].toString() == "1009",
   );
 }

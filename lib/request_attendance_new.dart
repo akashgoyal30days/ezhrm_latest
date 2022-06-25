@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:ezhrm/drawer.dart';
+import 'package:ezhrm/error_api.dart';
 import 'package:ezhrm/login.dart';
 import 'package:flutter/material.dart';
 
@@ -224,7 +225,8 @@ class _RequestAttendanceState extends State<RequestAttendance> {
         response.request.url.toString(),
         json.encode(logBody),
         response.body,
-        duration:apiEndTime.difference(apiStartTime).inSeconds
+        duration: apiEndTime.difference(apiStartTime).inSeconds,
+        additionalInfo: "image size is ${imageBytes.length / 1000}kB",
       );
       log(response.body);
       Map data = json.decode(response.body);
@@ -232,6 +234,7 @@ class _RequestAttendanceState extends State<RequestAttendance> {
       setState(() {
         attendanceloadingOverlay = false;
       });
+      
       if (!data.containsKey("code")) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Error Occured"),
@@ -262,6 +265,21 @@ class _RequestAttendanceState extends State<RequestAttendance> {
       setState(() {
         attendanceloadingOverlay = false;
       });
+      SharedPreferencesInstance.saveError(e.toString());
+      ErrorAPI.errorOccuredAPI(
+        e.toString(),
+        url: "$customurl/controller/process/app/attendance_mark.php",
+        body: {
+          'type': 'mark',
+          'uid': SharedPreferencesInstance.getString('uid') ?? "",
+          'cid': SharedPreferencesInstance.getString('comp_id') ?? "",
+          'device_id': SharedPreferencesInstance.getString('deviceid') ?? "",
+          'lat': currentPosition.latitude.toString(),
+          'long': currentPosition.longitude.toString(),
+          'img_data': "w",
+          'send_request': "1"
+        }.toString(),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -514,8 +532,9 @@ class _RequestAttendanceState extends State<RequestAttendance> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          CameraScreen(callBack: getImage),
+                                      builder: (context) => CameraScreen(
+                                          callBack: getImage,
+                                          imageSizeShouldBeLessThan200kB: true),
                                     ),
                                   );
                                 },
