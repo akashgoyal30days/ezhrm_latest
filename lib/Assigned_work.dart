@@ -1,18 +1,11 @@
 import 'dart:developer';
 
-import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:ezhrm/services/shared_preferences_singleton.dart';
 import 'package:ezhrm/upload_csr.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'dart:convert';
-import 'applywfh.dart';
 import 'constants.dart';
 import 'drawer.dart';
 
@@ -25,10 +18,87 @@ class Assigned_work extends StatefulWidget {
 
 class _Assigned_workState extends State<Assigned_work>
     with SingleTickerProviderStateMixin<Assigned_work> {
+  String time1;
+  String min1;
+  String zone1;
+  String time2;
+  String min2;
+  String zone2;
+  String checkintimevalue = "Select Checkin Time";
+  String checkouttimevalue = "Select Checkout Time";
+
+  TimeOfDay checkintime;
+  TimeOfDay Checkouttime;
+  TextEditingController remarkscontroller = TextEditingController();
+
+  selectcheckintime() async {
+    var initialtime = TimeOfDay.now();
+
+    var pickedtime = await showTimePicker(
+      context: context,
+      initialTime: initialtime,
+    );
+
+    if (pickedtime != null) {
+      checkintime = pickedtime;
+      time1 = checkintime.hour.toString();
+      min1 = checkintime.minute.toString();
+
+      if (time1.length.toString() == "1") {
+        time1 = "0" + checkintime.hour.toString();
+      } else {
+        time1 = checkintime.hour.toString();
+      }
+      if (min1.length.toString() == "1") {
+        min1 = "0" + checkintime.minute.toString();
+      } else {
+        min1 = checkintime.minute.toString();
+      }
+      zone1 = checkintime.period.toString();
+      zone1 = zone1.replaceAll("DayPeriod.", "").toUpperCase();
+      log(time1.toString());
+      log(min1.toString());
+      log(zone1.toString());
+      setState(() {});
+    }
+  }
+
+  selectcheckouttime() async {
+    var initialtime = TimeOfDay.now();
+
+    var pickedtime = await showTimePicker(
+      context: context,
+      initialTime: initialtime,
+    );
+
+    if (pickedtime != null) {
+      Checkouttime = pickedtime;
+      time2 = Checkouttime.hour.toString();
+      min2 = Checkouttime.minute.toString();
+
+      if (time2.length.toString() == "1") {
+        time2 = "0" + Checkouttime.hour.toString();
+      } else {
+        time2 = Checkouttime.hour.toString();
+      }
+      if (min2.length.toString() == "1") {
+        min2 = "0" + Checkouttime.minute.toString();
+      } else {
+        min2 = Checkouttime.minute.toString();
+      }
+      zone2 = Checkouttime.period.toString();
+      zone2 = zone2.replaceAll("DayPeriod.", "").toUpperCase();
+      log(time2.toString());
+      log(min2.toString());
+      log(zone2.toString());
+      setState(() {});
+    }
+  }
+
   bool visible = false;
   Map data;
   Map datanew;
-  List userData;
+  List userData = [];
   List userDatanew;
   String _mylist;
   String _mycredit;
@@ -48,6 +118,102 @@ class _Assigned_workState extends State<Assigned_work>
     fetch_assigned_work();
   }
 
+  showstatussheet(BuildContext context, int index) {
+    AlertDialog alert = AlertDialog(
+        contentPadding: const EdgeInsets.all(15),
+        content: StatefulBuilder(
+          builder: (BuildContext context, setState) {
+            return Container(
+              height: 400,
+              decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10))),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Check in time",
+                      style: TextStyle(
+                          color: themecolor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    FlatButton(
+                        textColor: Colors.white,
+                        color: Colors.green,
+                        height: 25,
+                        onPressed: () {
+                          selectcheckintime();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Text(checkintimevalue)
+                        )),
+                    const Divider(),
+                    const Text(
+                      "Check Out time",
+                      style: TextStyle(
+                          color: themecolor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    FlatButton(
+                        textColor: Colors.white,
+                        color: Colors.green,
+                        height: 25,
+                        onPressed: () {
+                          selectcheckouttime();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: 
+                             
+                                Text(checkouttimevalue),
+                        )),
+                    const Divider(),
+                    TextField(
+                      controller: remarkscontroller,
+                      minLines: 3,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                          hintText: "Remarks",
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          border: InputBorder.none,
+                          filled: true,
+                          fillColor: Colors.grey.shade300),
+                    ),
+                    const Divider(),
+                    FlatButton(
+                      color: Colors.green,
+                      textColor: Colors.white,
+                      child: const Text("Mark as Complete"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        showLoaderDialogwithName(context, "Please Wait..");
+                        update_assignedwork_status(userData[index]["id"], "1");
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ));
+
+    showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   showLoaderDialogwithName(BuildContext context, String message) {
     AlertDialog alert = AlertDialog(
       contentPadding: const EdgeInsets.all(15),
@@ -58,8 +224,8 @@ class _Assigned_workState extends State<Assigned_work>
               margin: const EdgeInsets.only(left: 25),
               child: Text(
                 message,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, color: themecolor),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w500, color: themecolor),
               )),
         ],
       ),
@@ -103,6 +269,13 @@ class _Assigned_workState extends State<Assigned_work>
       final response = await http.post(uri, body: {
         'uid': SharedPreferencesInstance.getString('uid'),
         'cid': SharedPreferencesInstance.getString('comp_id'),
+        "remarks": remarkscontroller.text,
+        "time": time1,
+        "min": min1,
+        "zone": zone1,
+        "time2": time2,
+        "min2": min2,
+        "zone2": zone2,
         'type': 'update_status',
         "id": taskid,
         "status": status,
@@ -122,37 +295,6 @@ class _Assigned_workState extends State<Assigned_work>
     } catch (error) {
       log(error.toString());
     }
-  }
-
-  openstatussheet(int index) {
-    return showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (context) {
-          return Container(
-            decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10))),
-            height: 100,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FlatButton(
-                  color: Colors.green,
-                  textColor: Colors.white,
-                  child: const Text("Mark as Complete"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    showLoaderDialogwithName(context, "Please Wait..");
-                    update_assignedwork_status(userData[index]["id"], "1");
-                  },
-                ),
-              ],
-            ),
-          );
-        });
   }
 
   viewcompanydetails(int index) {
@@ -447,8 +589,8 @@ class _Assigned_workState extends State<Assigned_work>
                                                                 Colors.green),
                                                         child: const Padding(
                                                           padding:
-                                                              EdgeInsets
-                                                                  .all(5.0),
+                                                              EdgeInsets.all(
+                                                                  5.0),
                                                           child: Text(
                                                             "Completed",
                                                             style: TextStyle(
@@ -471,8 +613,8 @@ class _Assigned_workState extends State<Assigned_work>
                                                             color: Colors.red),
                                                         child: const Padding(
                                                           padding:
-                                                              EdgeInsets
-                                                                  .all(5.0),
+                                                              EdgeInsets.all(
+                                                                  5.0),
                                                           child: Text(
                                                             "Pending",
                                                             style: TextStyle(
@@ -500,7 +642,8 @@ class _Assigned_workState extends State<Assigned_work>
                                                                         5)),
                                                     color: themecolor,
                                                     onPressed: () {
-                                                      openstatussheet(index);
+                                                      showstatussheet(
+                                                          context, index);
                                                     },
                                                     child: const Text(
                                                       "Change Status",

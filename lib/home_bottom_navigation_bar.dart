@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,6 +21,9 @@ import 'myprofile.dart';
 import 'constants.dart';
 import 'notification.dart';
 import 'services/shared_preferences_singleton.dart';
+
+String showupdatedailog =
+    SharedPreferencesInstance.instance.getString("showupdatedailog");
 
 class HomeBottomNavigationBar extends StatefulWidget {
   const HomeBottomNavigationBar({Key key}) : super(key: key);
@@ -46,7 +50,12 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
       if (goGreenModel.backgroundLocationTrackingEnabled) {
         showLocationTrackingDialog();
       }
-      // if (goGreenModel.showUpdateAvailableDialog) showUpdate();
+      if (goGreenModel.showUpdateAvailableDialog) {
+        log(showupdatedailog.toString());
+        if (showupdatedailog.toString() == "false") {
+          showUpdate();
+        }
+      }
     });
   }
 
@@ -96,12 +105,17 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
                     children: [
                       CupertinoDialogAction(
                         isDefaultAction: true,
-                        child: const Text('Update now'),
+                        child: const Text('Update Now'),
                         onPressed: () async {
-                          if (await canLaunch(
-                              "https://play.google.com/store/apps/details?id=com.in30days.ezhrm")) {
-                            await launch(
+                          showupdatedailog = "true";
+                          await SharedPreferencesInstance.instance
+                              .setString("showupdatedailog", "true");
+                          if (Platform.isAndroid) {
+                            launch(
                                 "https://play.google.com/store/apps/details?id=com.in30days.ezhrm");
+                          } else {
+                            launch(
+                                "https://apps.apple.com/us/app/ezhrm/id1551548072");
                           }
                         },
                       ),
@@ -109,8 +123,13 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
                       CupertinoDialogAction(
                         isDefaultAction: true,
                         child: const Text('Not Now'),
-                        onPressed: () {
+                        onPressed: () async {
+                          showupdatedailog = "true";
+                          await SharedPreferencesInstance.instance
+                              .setString("showupdatedailog", "true");
+                          setState(() {});
                           Navigator.pop(context);
+                          log(showupdatedailog.toString());
                         },
                       ),
                     ],
@@ -121,8 +140,6 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
           );
         },
       );
-
-  //-------------LOCATION START API ------------------
 
   showLocationTrackingDialog() async {
     bool clickedOnAllow = SharedPreferencesInstance.approvedBackgroundTracking
@@ -137,7 +154,8 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
       SystemNavigator.pop();
       return;
     }
-    SharedPreferencesInstance.instance.setBool("backgroundPermissionStatus", true);
+    SharedPreferencesInstance.instance
+        .setBool("backgroundPermissionStatus", true);
     checkGPSStatus();
   }
 
@@ -161,24 +179,8 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
             backgroundColor: Colors.red,
           ));
         }
-        Navigator.pop(context);
         return;
       }
-    }
-    var locationEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!locationEnabled) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-            "Please Turn your GPS ON",
-            textAlign: TextAlign.center,
-          ),
-          backgroundColor: Colors.red,
-        ));
-      }
-      Navigator.pop(context);
-      return;
     }
     var servicestatus = await Geolocator.isLocationServiceEnabled();
     if (!servicestatus) {

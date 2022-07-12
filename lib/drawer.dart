@@ -1,13 +1,18 @@
+import 'dart:io';
 import 'package:ezhrm/Assigned_work.dart';
 import 'package:ezhrm/about.dart';
 import 'package:ezhrm/advance.dart';
 import 'package:ezhrm/applycompoff.dart';
+import 'package:ezhrm/constants.dart';
+import 'package:ezhrm/main.dart';
 import 'package:ezhrm/upload_csr.dart';
 import 'package:ezhrm/upload_documents.dart';
 import 'package:ezhrm/feedback.dart';
 import 'package:ezhrm/holiday.dart';
 import 'package:ezhrm/leavequota.dart';
 import 'package:ezhrm/leavestatus.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:ezhrm/loan.dart';
 import 'package:ezhrm/meeting.dart';
 import 'package:ezhrm/reimbursment.dart';
@@ -17,10 +22,8 @@ import 'package:ezhrm/salary_slip.dart';
 import 'package:ezhrm/uploadimg_new.dart';
 import 'package:ezhrm/view_csr_actiivity.dart';
 import 'package:ezhrm/view_todo_list.dart';
-import 'package:ezhrm/work_reporting.dart';
 import 'package:ezhrm/workfromhome.dart';
 import 'package:flutter/material.dart';
-
 import 'applyleave.dart';
 import 'attendance_history_new.dart';
 import 'editprofile.dart';
@@ -28,6 +31,7 @@ import 'markattendance_new.dart';
 
 enum AvailableDrawerScreens {
   dashboard,
+  checkforupdates,
   markAttendance,
   requestAttendance,
   attendanceHistory,
@@ -54,15 +58,94 @@ enum AvailableDrawerScreens {
   aboutUs
 }
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends StatefulWidget {
   const CustomDrawer({this.currentScreen, Key key, this.openUserProfileScreen})
       : super(key: key);
   final VoidCallback openUserProfileScreen;
   final AvailableDrawerScreens currentScreen;
 
+  @override
+  State<CustomDrawer> createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  void showUpdate() => showCupertinoDialog(
+        context: context,
+        builder: (context) {
+          return WillPopScope(
+            onWillPop: () async {
+              Navigator.pop(context);
+              return false;
+            },
+            child: Theme(
+              data: ThemeData.light(),
+              child: CupertinoAlertDialog(
+                title: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    Image.asset(
+                      'assets/ezlogo.png',
+                      width: 200,
+                      height: 100,
+                    ),
+                    const Text(
+                      'EZHRM',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+                content: Column(
+                  children: const [
+                    SizedBox(height: 20),
+                    Text(
+                      ' New Update available',
+                      style: TextStyle(
+                          fontFamily: font1,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 25),
+                    ),
+                  ],
+                ),
+                actions: <Widget>[
+                  Column(
+                    children: [
+                      CupertinoDialogAction(
+                        isDefaultAction: true,
+                        child: const Text('Update Now'),
+                        onPressed: () async {
+                          if (Platform.isAndroid) {
+                            launch(
+                                "https://play.google.com/store/apps/details?id=com.in30days.ezhrm");
+                          } else {
+                            launch(
+                                "https://apps.apple.com/us/app/ezhrm/id1551548072");
+                          }
+                        },
+                      ),
+                      const Divider(),
+                      CupertinoDialogAction(
+                        isDefaultAction: true,
+                        child: const Text('Not Now'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
   navigator(context, Widget screen) {
     Navigator.pop(context);
-    if (currentScreen == AvailableDrawerScreens.dashboard) {
+    if (widget.currentScreen == AvailableDrawerScreens.dashboard) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
     } else {
       Navigator.pushReplacement(
@@ -91,10 +174,11 @@ class CustomDrawer extends StatelessWidget {
             child: SafeArea(
           child: Column(
             children: [
-              DashBoardProfileViewer(openUserProfileScreen),
+              DashBoardProfileViewer(widget.openUserProfileScreen),
               DashBoardItem(
                 title: "Dashboard",
-                isSelected: currentScreen == AvailableDrawerScreens.dashboard,
+                isSelected:
+                    widget.currentScreen == AvailableDrawerScreens.dashboard,
                 onTap: () {
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
@@ -104,15 +188,15 @@ class CustomDrawer extends StatelessWidget {
                 items: [
                   DashBoardItem(
                     title: "Mark Attendance",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.markAttendance,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.markAttendance,
                     onTap: () async {
                       navigator(context, const MarkAttendanceScreen());
                     },
                   ),
                   DashBoardItem(
                     title: "Request Attendance",
-                    isSelected: currentScreen ==
+                    isSelected: widget.currentScreen ==
                         AvailableDrawerScreens.requestAttendance,
                     onTap: () async {
                       navigator(context, const RequestAttendance());
@@ -120,7 +204,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   DashBoardItem(
                     title: "Attendance History",
-                    isSelected: currentScreen ==
+                    isSelected: widget.currentScreen ==
                         AvailableDrawerScreens.attendanceHistory,
                     onTap: () async {
                       navigator(context, const AttendanceHistoryScreen());
@@ -128,24 +212,24 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   DashBoardItem(
                     title: "Leave Status",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.leaveStatus,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.leaveStatus,
                     onTap: () async {
                       navigator(context, const LeaveStatus());
                     },
                   ),
                   DashBoardItem(
                     title: "Leave Quota",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.leaveQuota,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.leaveQuota,
                     onTap: () async {
                       navigator(context, const LeaveQuota());
                     },
                   ),
                   DashBoardItem(
                     title: "Holiday List",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.holidayList,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.holidayList,
                     onTap: () async {
                       navigator(context, const MyHoliday());
                     },
@@ -157,8 +241,8 @@ class CustomDrawer extends StatelessWidget {
                 items: [
                   DashBoardItem(
                     title: "Leave",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.applyLeave,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.applyLeave,
                     onTap: () async {
                       navigator(context, const ApplyLeave());
                     },
@@ -166,38 +250,39 @@ class CustomDrawer extends StatelessWidget {
                   DashBoardItem(
                     title: "Work From Home",
                     isSelected:
-                        currentScreen == AvailableDrawerScreens.applyWFH,
+                        widget.currentScreen == AvailableDrawerScreens.applyWFH,
                     onTap: () async {
                       navigator(context, const WorkFromHome());
                     },
                   ),
                   DashBoardItem(
                     title: "Comp-Off",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.applyCompOff,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.applyCompOff,
                     onTap: () async {
                       navigator(context, const ApplyCompOff());
                     },
                   ),
                   DashBoardItem(
                     title: "Reimbursment",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.reimbursment,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.reimbursment,
                     onTap: () async {
                       navigator(context, const ApplyReim());
                     },
                   ),
                   DashBoardItem(
                     title: "Advance Salary",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.advanceSalary,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.advanceSalary,
                     onTap: () async {
                       navigator(context, const Advance());
                     },
                   ),
                   DashBoardItem(
                     title: "Loan",
-                    isSelected: currentScreen == AvailableDrawerScreens.loan,
+                    isSelected:
+                        widget.currentScreen == AvailableDrawerScreens.loan,
                     onTap: () async {
                       navigator(context, const Loan());
                     },
@@ -206,29 +291,31 @@ class CustomDrawer extends StatelessWidget {
               ),
               DashBoardItem(
                 title: "Salary Slip",
-                isSelected: currentScreen == AvailableDrawerScreens.salary,
+                isSelected:
+                    widget.currentScreen == AvailableDrawerScreens.salary,
                 onTap: () async {
                   navigator(context, const SalarySlip());
                 },
               ),
               DashBoardItem(
                 title: "Join Meeting",
-                isSelected: currentScreen == AvailableDrawerScreens.joinMeeting,
+                isSelected:
+                    widget.currentScreen == AvailableDrawerScreens.joinMeeting,
                 onTap: () async {
                   navigator(context, const MyMeetings());
                 },
               ),
               DashBoardItem(
                 title: "Upload Documents",
-                isSelected:
-                    currentScreen == AvailableDrawerScreens.uploadDocuments,
+                isSelected: widget.currentScreen ==
+                    AvailableDrawerScreens.uploadDocuments,
                 onTap: () async {
                   navigator(context, const DocuMents());
                 },
               ),
               DashBoardItem(
                 title: "Face Recognition Images",
-                isSelected: currentScreen ==
+                isSelected: widget.currentScreen ==
                     AvailableDrawerScreens.faceRecognitionImages,
                 onTap: () async {
                   navigator(context, const UploadImg());
@@ -247,18 +334,18 @@ class CustomDrawer extends StatelessWidget {
                 items: [
                   DashBoardItem(
                     title: "Post Activity",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.csrpostactivity,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.csrpostactivity,
                     onTap: () async {
                       navigator(context, const CSRUploadActivity());
                     },
                   ),
                   DashBoardItem(
                     title: "View Activity",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.Csrviewactivity,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.Csrviewactivity,
                     onTap: () async {
-                      navigator(context, ViewCSRactivity());
+                      navigator(context, const ViewCSRactivity());
                     },
                   ),
                 ],
@@ -269,44 +356,64 @@ class CustomDrawer extends StatelessWidget {
                   DashBoardItem(
                     title: "To do List",
                     isSelected:
-                        currentScreen == AvailableDrawerScreens.TodoList,
+                        widget.currentScreen == AvailableDrawerScreens.TodoList,
                     onTap: () async {
-                      navigator(context, ViewTodoList());
+                      navigator(context, const ViewTodoList());
                     },
                   ),
                   DashBoardItem(
                     title: "Assigned Work",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.AssignedWork,
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.AssignedWork,
                     onTap: () async {
-                      navigator(context, Assigned_work());
+                      navigator(context, const Assigned_work());
                     },
                   ),
-                  DashBoardItem(
-                    title: "Work Reporting",
-                    isSelected:
-                        currentScreen == AvailableDrawerScreens.WorkReporting,
-                    onTap: () async {
-                      navigator(context, WorkReporting());
-                    },
-                  ),
+                  // DashBoardItem(
+                  //   title: "Work Reporting",
+                  //   isSelected:
+                  //       currentScreen == AvailableDrawerScreens.WorkReporting,
+                  //   onTap: () async {
+                  //     navigator(context, WorkReporting());
+                  //   },
+                  // ),
                 ],
               ),
 
               DashBoardItem(
                 title: "Feedback",
-                isSelected: currentScreen == AvailableDrawerScreens.feedback,
+                isSelected:
+                    widget.currentScreen == AvailableDrawerScreens.feedback,
                 onTap: () async {
                   navigator(context, const FeedBack());
                 },
               ),
               DashBoardItem(
                 title: "About Us",
-                isSelected: currentScreen == AvailableDrawerScreens.aboutUs,
+                isSelected:
+                    widget.currentScreen == AvailableDrawerScreens.aboutUs,
                 onTap: () async {
                   navigator(context, const About());
                 },
               ),
+              DashBoardItem(
+                title: "Check for updates",
+                isSelected: widget.currentScreen ==
+                    AvailableDrawerScreens.checkforupdates,
+                onTap: () async {
+                  if (goGreenModel.showUpdateAvailableDialog) {
+                    Navigator.pop(context);
+                    showUpdate();
+                  } else {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        elevation: 5,
+                        backgroundColor: Colors.red,
+                        content: Text("No Update Available")));
+                  }
+                },
+              ),
+              
             ],
           ),
         )),

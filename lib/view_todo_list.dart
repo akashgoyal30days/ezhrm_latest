@@ -28,7 +28,7 @@ class _ViewTodoListState extends State<ViewTodoList>
   bool visible = false;
   Map data;
   Map datanew;
-  List userData;
+  List userData =[];
   List userDatanew;
   String _mylist;
   String _mycredit;

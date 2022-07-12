@@ -1,18 +1,11 @@
 import 'dart:developer';
 
-import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:ezhrm/services/shared_preferences_singleton.dart';
 import 'package:ezhrm/upload_csr.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'dart:convert';
-import 'applywfh.dart';
 import 'constants.dart';
 import 'drawer.dart';
 
@@ -39,6 +32,8 @@ class _WorkReportingState extends State<WorkReporting>
   String uid;
   String cid;
   String todaysplan;
+  String todayscompletedwork;
+  String nextdayplaning;
   dynamic reasonController = TextEditingController();
   var newdata;
   var internet = 'yes';
@@ -51,16 +46,16 @@ class _WorkReportingState extends State<WorkReporting>
 
   showLoaderDialogwithName(BuildContext context, String message) {
     AlertDialog alert = AlertDialog(
-      contentPadding: EdgeInsets.all(15),
+      contentPadding: const EdgeInsets.all(15),
       content: Row(
         children: [
-          CircularProgressIndicator(color: themecolor),
+          const CircularProgressIndicator(color: themecolor),
           Container(
-              margin: EdgeInsets.only(left: 25),
+              margin: const EdgeInsets.only(left: 25),
               child: Text(
                 message,
-                style:
-                    TextStyle(fontWeight: FontWeight.w500, color: themecolor),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w500, color: themecolor),
               )),
         ],
       ),
@@ -85,20 +80,23 @@ class _WorkReportingState extends State<WorkReporting>
         'Accept': 'application/json',
       });
       var rsp = jsonDecode(response.body);
-      // log(rsp.toString());
+      log(rsp.toString());
       if (rsp.containsKey("status")) {
         if (rsp["status"].toString() == "true") {
           userData = rsp["data"];
+          todayscompletedwork = userData[0]["work"];
+          nextdayplaning = userData[0]["next_plannig"];
+
           setState(() {});
         }
       }
-      log(userData.toString());
+      // log(userData.toString());
     } catch (error) {
       log(error.toString());
     }
   }
 
-  Future update_assignedwork_status(String taskid, String status) async {
+  Future submit_work(String taskid, String status) async {
     try {
       var uri = "$customurl/controller/process/app/user_task.php";
       final response = await http.post(uri, body: {
@@ -116,44 +114,13 @@ class _WorkReportingState extends State<WorkReporting>
         if (rsp["status"].toString() == "true") {
           Navigator.pop(context);
           Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => WorkReporting()));
+              MaterialPageRoute(builder: (context) => const WorkReporting()));
         }
       }
       log(userData.toString());
     } catch (error) {
       log(error.toString());
     }
-  }
-
-  openstatussheet(int index) {
-    return showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (context) {
-          return Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10))),
-            height: 100,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FlatButton(
-                  color: Colors.green,
-                  textColor: Colors.white,
-                  child: Text("Mark as Complete"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    showLoaderDialogwithName(context, "Please Wait..");
-                    update_assignedwork_status(userData[index]["id"], "1");
-                  },
-                ),
-              ],
-            ),
-          );
-        });
   }
 
   @override
@@ -219,11 +186,11 @@ class _WorkReportingState extends State<WorkReporting>
                     )
                   : ListView(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
+                        const Padding(
+                          padding: EdgeInsets.all(5.0),
                           child: Text(
                             "Todays Plan Work",
                             style: TextStyle(
@@ -243,7 +210,7 @@ class _WorkReportingState extends State<WorkReporting>
                                 TextField(
                                   readOnly: true,
                                   decoration: InputDecoration(
-                                      hintText: todaysplan,
+                                      hintText: todaysplan ?? "",
                                       border: InputBorder.none,
                                       filled: true,
                                       fillColor: Colors.grey.shade200),
@@ -254,11 +221,11 @@ class _WorkReportingState extends State<WorkReporting>
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
+                        const Padding(
+                          padding: EdgeInsets.all(5.0),
                           child: Text(
                             "Today Completed Work",
                             style: TextStyle(
@@ -278,7 +245,7 @@ class _WorkReportingState extends State<WorkReporting>
                                 TextField(
                                   readOnly: true,
                                   decoration: InputDecoration(
-                                      hintText: todaysplan,
+                                      hintText: todayscompletedwork ?? "",
                                       border: InputBorder.none,
                                       filled: true,
                                       fillColor: Colors.grey.shade200),
@@ -289,11 +256,11 @@ class _WorkReportingState extends State<WorkReporting>
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
+                        const Padding(
+                          padding: EdgeInsets.all(5.0),
                           child: Text(
                             "Next Day Planning",
                             style: TextStyle(
@@ -313,7 +280,7 @@ class _WorkReportingState extends State<WorkReporting>
                                 TextField(
                                   readOnly: true,
                                   decoration: InputDecoration(
-                                      hintText: todaysplan,
+                                      hintText: nextdayplaning ?? "",
                                       border: InputBorder.none,
                                       filled: true,
                                       fillColor: Colors.grey.shade200),
@@ -323,6 +290,18 @@ class _WorkReportingState extends State<WorkReporting>
                               ],
                             ),
                           ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)),
+                              color: themecolor,
+                              child: const Text(
+                                "Submit",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () {}),
                         )
                       ],
                     ),

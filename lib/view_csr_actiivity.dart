@@ -1,17 +1,11 @@
 import 'dart:developer';
 
-import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:ezhrm/services/shared_preferences_singleton.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:ezhrm/upload_csr.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'dart:convert';
-import 'applywfh.dart';
 import 'constants.dart';
 import 'drawer.dart';
 
@@ -44,19 +38,25 @@ class _ViewCSRactivityState extends State<ViewCSRactivity>
   @override
   void initState() {
     super.initState();
+    fetchList();
   }
 
   Future fetchList() async {
     try {
-      var uri = "$customurl/controller/process/app/leave.php";
+      var uri = "$customurl/controller/process/app/activity.php";
       final response = await http.post(uri, body: {
-        'uid': SharedPreferencesInstance.getString('uid'),
         'cid': SharedPreferencesInstance.getString('comp_id'),
-        'type': 'work_home_status'
+        'type': 'fetch_data'
       }, headers: <String, String>{
         'Accept': 'application/json',
       });
-      data = json.decode(response.body);
+      var rsp = json.decode(response.body);
+      if (rsp.containsKey("status")) {
+        if (rsp["status"].toString() == "true") {
+          userData = rsp["data"];
+        }
+      }
+      log(userData.toString());
       setState(() {});
     } catch (error) {
       log(error.toString());
@@ -128,12 +128,35 @@ class _ViewCSRactivityState extends State<ViewCSRactivity>
                       itemCount: userData == null ? 0 : userData.length,
                       itemBuilder: (BuildContext context, int index) {
                         return Card(
+                          elevation: 10,
                           margin: const EdgeInsets.all(8.0),
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [],
+                              children: [
+                                Text(
+                                  userData[index]["u_full_name"].toString(),
+                                  style: const TextStyle(
+                                      color: themecolor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                const Divider(),
+                                Text(
+                                  userData[index]["text"].toString(),
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                Divider(),
+                                Container(
+                                  child: Image.network(
+                                      userData[index]["timeline_pic"]),
+                                ),
+                                const Divider(),
+                              ],
                             ),
                           ),
                         );

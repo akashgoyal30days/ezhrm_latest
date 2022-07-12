@@ -1,9 +1,11 @@
 // ignore_for_file: prefer_typing_uninitialized_variables
 
+import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ezhrm/home_bottom_navigation_bar.dart';
 import 'package:ezhrm/splash_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -88,7 +90,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
   }
   // _handleSignOut() async => await _googleSignIn.disconnect();
 
- Future<void> initPlatformState() async {
+  Future<void> initPlatformState() async {
     try {
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
@@ -391,6 +393,9 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
       );
 
   login() async {
+    await SharedPreferencesInstance.instance
+        .setString("showupdatedailog", "false");
+    log(showupdatedailog.toString());
     String email = emailController.text ?? "",
         password = passwordController.text ?? "";
     if (email.isEmpty || password.isEmpty) return;
@@ -410,6 +415,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
       btnval = 'show';
     });
     var rsp = await loginUser(email, password, did, version, mytoken);
+    log(rsp.toString());
     if (rsp.containsKey('status')) {
       setState(() {
         btnval = 'hide';
