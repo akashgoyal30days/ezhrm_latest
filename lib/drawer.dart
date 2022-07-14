@@ -297,14 +297,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   navigator(context, const SalarySlip());
                 },
               ),
-              DashBoardItem(
-                title: "Join Meeting",
-                isSelected:
-                    widget.currentScreen == AvailableDrawerScreens.joinMeeting,
-                onTap: () async {
-                  navigator(context, const MyMeetings());
-                },
-              ),
+              // DashBoardItem(
+              //   title: "Join Meeting",
+              //   isSelected:
+              //       widget.currentScreen == AvailableDrawerScreens.joinMeeting,
+              //   onTap: () async {
+              //     navigator(context, const MyMeetings());
+              //   },
+              // ),
               DashBoardItem(
                 title: "Upload Documents",
                 isSelected: widget.currentScreen ==

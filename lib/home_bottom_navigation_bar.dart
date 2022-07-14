@@ -212,7 +212,7 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
       ));
       return;
     }
-    startBackgroundTracking();
+    // startBackgroundTracking();
   }
 
   Future<bool> backgroundServices() async => await FlutterBackground.initialize(
@@ -223,18 +223,18 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
         ),
       );
 
-  startBackgroundTracking() async {
-    await backgroundServices();
-    FlutterBackground.enableBackgroundExecution();
-    // location updates stream
-    locationStream =
-        Geolocator.getPositionStream().listen((_) => currentPosition = _);
-    // background location update
-    backgroundTrackingTimer = Timer.periodic(
-      Duration(microseconds: intervalInMicroSeconds),
-      (_) => sendBackgroundLocation(),
-    );
-  }
+  // startBackgroundTracking() async {
+  //   await backgroundServices();
+  //   FlutterBackground.enableBackgroundExecution();
+  //   // location updates stream
+  //   locationStream =
+  //       Geolocator.getPositionStream().listen((_) => currentPosition = _);
+  //   // background location update
+  //   backgroundTrackingTimer = Timer.periodic(
+  //     Duration(microseconds: intervalInMicroSeconds),
+  //     (_) => sendBackgroundLocation(),
+  //   );
+  // }
 
   sendBackgroundLocation() async {
     if (currentPosition == null) return;

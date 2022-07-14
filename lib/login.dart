@@ -174,6 +174,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
   }
 
   _googleLogin() async {
+    log(_currentUser.email.toString());
     if (_currentUser == null) return;
     setState(() {
       message = 'please wait....';
@@ -183,16 +184,18 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
     var uri = "$customurl/controller/process/app/user_glogin.php";
     final response = await http.post(uri, body: {
       'type': 'glogin',
-      'email': _currentUser.email,
-      'device_id': _platformVersion,
-      'device_id2': _platformVersion,
-      'version': version,
-      'firebase': mytoken,
+      'email': _currentUser.email??"",
+      'device_id': _platformVersion??"",
+      'device_id2': _platformVersion??"",
+      'version': version??"",
+      'firebase': mytoken??"",
       'platform': 'android',
     }, headers: <String, String>{
       'Accept': 'application/json',
     });
     var mydata = json.decode(response.body);
+
+    
     if (!mydata.containsKey('status')) {
       setState(() {
         visible = false;
@@ -629,18 +632,18 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                   MaterialStateProperty.all(8),
                                             ),
                                           ),
-                                          const SizedBox(height: 6),
-                                          SignInButton(
-                                            Buttons.Google,
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 4),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            elevation: 8,
-                                            onPressed: _handleSignIn,
-                                          ),
+                                          // const SizedBox(height: 6),
+                                          // SignInButton(
+                                          //   Buttons.Google,
+                                          //   padding: const EdgeInsets.symmetric(
+                                          //       vertical: 4),
+                                          //   shape: RoundedRectangleBorder(
+                                          //     borderRadius:
+                                          //         BorderRadius.circular(10),
+                                          //   ),
+                                          //   elevation: 8,
+                                          //   onPressed: _handleSignIn,
+                                          // ),
                                           const SizedBox(height: 10),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(

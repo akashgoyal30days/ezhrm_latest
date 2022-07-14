@@ -71,7 +71,7 @@ dependencies:
   webview_flutter:
   flutter_html_to_pdf: ^0.7.0
   flutter_full_pdf_viewer:
-  jitsi_meet: ^2.1.0
+  # jitsi_meet: ^2.1.0
   permission_handler: ^4.4.0+hotfix.2
   package_info:
   #android_intent: ^0.3.6+12

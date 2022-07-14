@@ -1,9 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 import 'package:package_info/package_info.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_foreground_plugin/flutter_foreground_plugin.dart';
+// import 'package:flutter_foreground_plugin/flutter_foreground_plugin.dart';
 
 import 'goGreen_Global.dart';
 import 'splash_screen.dart';
@@ -47,13 +49,14 @@ class Main extends StatelessWidget {
 }
 
 initializeApp() async {
+  log("initialize start");
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
   cameras.addAll(await availableCameras());
   await SharedPreferencesInstance.initialize();
-  FlutterForegroundPlugin.stopForegroundService();
+  // FlutterForegroundPlugin.stopForegroundService();
   SharedPreferencesInstance.instance.remove('reqatt');
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -75,5 +78,4 @@ initializeApp() async {
     debugEnable: datak["debug_enable"].toString() == "true",
     showUpdateAvailableDialog: datak['code'].toString() == "1009",
   );
-
 }

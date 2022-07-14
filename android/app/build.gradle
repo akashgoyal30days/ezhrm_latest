@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging'
     implementation "androidx.core:core-ktx:1.6.0"
-    implementation ('org.jitsi.react:jitsi-meet-sdk:2.8.2') { transitive = true }
+    // implementation ('org.jitsi.react:jitsi-meet-sdk:2.8.2') { transitive = true }
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     compile 'com.google.android.gms:play-services-location:9.4.0'
     compile 'com.google.android.gms:play-services-appindexing:9.4.0'

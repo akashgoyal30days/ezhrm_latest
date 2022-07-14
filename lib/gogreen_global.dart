@@ -8,13 +8,15 @@ import 'main.dart';
 import 'services/shared_preferences_singleton.dart';
 
 class GoGreenGlobal {
-  static initialize() async {
+   static initialize() async {
+    log("Gogreen initialized");
+
     try {
       var body = {
-        'uid': SharedPreferencesInstance.getString('uid'),
-        'cid': SharedPreferencesInstance.getString('comp_id'),
+        'uid': SharedPreferencesInstance.getString('uid')??"",
+        'cid': SharedPreferencesInstance.getString('comp_id')??"",
         'type': 'go_green',
-        'firebase_token': SharedPreferencesInstance.getString('fbasetoken'),
+        'firebase_token': SharedPreferencesInstance.getString('fbasetoken')??"",
         'device_id': SharedPreferencesInstance.getString('deviceid') ?? "",
         'version': version,
         'platform': 'android',
@@ -43,6 +45,7 @@ class GoGreenGlobal {
       log("Initialized");
       return;
     } catch (error) {
+      log("Error in initialized");
       return await SharedPreferencesInstance.logOut();
     }
   }
