@@ -37,21 +37,21 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>Need to access music</string>
+	<string>App Need to access music</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>Need access to Calender</string>
+	<string>Need access to Calender to view attendance history</string>
 	<key>NSCameraUsageDescription</key>
-	<string>InAppWebView requires access to camera.</string>
+	<string>App requires access to camera to mark face attendance.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>InAppWebView requires access to contacts for class meetings.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Need location</string>
+	<string>Need location for track employee location</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Need location</string>
+	<string>NNeed location for track employee location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need location</string>
+	<string>Need location for track employee location</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>InAppWebView requires access to mic.</string>
+	<string>App requires access to mic.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Need access to motion</string>
 	<key>NSPhotoLibraryUsageDescription</key>
