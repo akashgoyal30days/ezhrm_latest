@@ -279,14 +279,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       navigator(context, const Advance());
                     },
                   ),
-                  DashBoardItem(
-                    title: "Loan",
-                    isSelected:
-                        widget.currentScreen == AvailableDrawerScreens.loan,
-                    onTap: () async {
-                      navigator(context, const Loan());
-                    },
-                  ),
+                  // DashBoardItem(
+                  //   title: "Loan",
+                  //   isSelected:
+                  //       widget.currentScreen == AvailableDrawerScreens.loan,
+                  //   onTap: () async {
+                  //     navigator(context, const Loan());
+                  //   },
+                  // ),
                 ],
               ),
               DashBoardItem(

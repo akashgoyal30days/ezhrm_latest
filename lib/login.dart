@@ -645,28 +645,28 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                           //   onPressed: _handleSignIn,
                                           // ),
                                           const SizedBox(height: 10),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8.0),
-                                            child: TextButton(
-                                                onPressed: () => Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (_) =>
-                                                            const RegisterNewCompany())),
-                                                child: const Text(
-                                                    "Register a New Company"),
-                                                style: ButtonStyle(
-                                                    padding:
-                                                        MaterialStateProperty
-                                                            .all(EdgeInsets
-                                                                .zero),
-                                                    foregroundColor:
-                                                        MaterialStateProperty
-                                                            .all(
-                                                      const Color(0xff072a99),
-                                                    ))),
-                                          ),
+                                          // Padding(
+                                          //   padding: const EdgeInsets.symmetric(
+                                          //       horizontal: 8.0),
+                                          //   child: TextButton(
+                                          //       onPressed: () => Navigator.push(
+                                          //           context,
+                                          //           MaterialPageRoute(
+                                          //               builder: (_) =>
+                                          //                   const RegisterNewCompany())),
+                                          //       child: const Text(
+                                          //           "Register a New Company"),
+                                          //       style: ButtonStyle(
+                                          //           padding:
+                                          //               MaterialStateProperty
+                                          //                   .all(EdgeInsets
+                                          //                       .zero),
+                                          //           foregroundColor:
+                                          //               MaterialStateProperty
+                                          //                   .all(
+                                          //             const Color(0xff072a99),
+                                          //           ))),
+                                          // ),
                                         ])),
                           ]),
                     ),
@@ -770,7 +770,7 @@ class DataUsageDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop(true);
           },
-          child: const Text("Agree & Continue"),
+          child: const Text("Continue"),
           style: ButtonStyle(
               foregroundColor:
                   MaterialStateProperty.all(const Color(0xff072a99))),

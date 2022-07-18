@@ -12,32 +12,29 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>ezhrm</string>
-
-    <!-- Google Sign-in Section -->
-    <key>CFBundleURLTypes</key>
-    <array>
-    	<dict>
-    		<key>CFBundleTypeRole</key>
-    		<string>Editor</string>
-    		<key>CFBundleURLSchemes</key>
-    		<array>
-    			<string>com.googleusercontent.apps.784136586253-54aq4doi77pdqvub229qac8ohqjqdnos</string>
-    		</array>
-    	</dict>
-    </array>
-    <!-- End of the Google Sign-in Section -->
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.784136586253-54aq4doi77pdqvub229qac8ohqjqdnos</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>App Need to access music</string>
+	<string>App needs access to media library to upload documents and images</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Need access to Calender to view attendance history</string>
 	<key>NSCameraUsageDescription</key>
