@@ -34,7 +34,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>App needs access to media library to upload documents and images</string>
+	<string>App no need access,please Deny..</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Need access to Calender to view attendance history</string>
 	<key>NSCameraUsageDescription</key>
