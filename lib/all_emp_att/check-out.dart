@@ -1,10 +1,13 @@
 import 'dart:convert';
-import 'package:ezhrm/services/shared_preferences_singleton.dart';
+import 'dart:developer';
 import 'package:flushbar/flushbar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants.dart';
 import 'mainscreen.dart';
@@ -36,20 +39,50 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
   List enabledbuttonlistsearch = [];
   @override
   void initState() {
-    super.initState();
     requestLocationPermission();
     getEmail();
   }
 
+  showLoaderDialogwithName(BuildContext context, String message) {
+    AlertDialog alert = AlertDialog(
+      contentPadding: EdgeInsets.all(15),
+      content: Row(
+        children: [
+          CircularProgressIndicator(
+            color: Colors.black,
+          ),
+          Container(
+              margin: EdgeInsets.only(left: 25),
+              child: Text(
+                message,
+                style: TextStyle(fontWeight: FontWeight.w500),
+              )),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Future getEmail() async {
- 
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    SharedPreferences preferencess = await SharedPreferences.getInstance();
+    SharedPreferences preferencesimg = await SharedPreferences.getInstance();
+    SharedPreferences preferencesimg2 = await SharedPreferences.getInstance();
+    SharedPreferences preferencesuid = await SharedPreferences.getInstance();
+    SharedPreferences preferencecuid = await SharedPreferences.getInstance();
     setState(() {
-      email = SharedPreferencesInstance.getString('email');
-      username = SharedPreferencesInstance.getString('username');
-      ppic = SharedPreferencesInstance.getString('profile');
-      ppic2 = SharedPreferencesInstance.getString('profile2');
-      uid = SharedPreferencesInstance.getString('uid');
-      cid = SharedPreferencesInstance.getString('comp_id');
+      email = preferences.getString('email');
+      username = preferencess.getString('username');
+      ppic = preferencesimg.getString('profile');
+      ppic2 = preferencesimg2.getString('profile2');
+      uid = preferencesuid.getString('uid');
+      cid = preferencecuid.getString('comp_id');
     });
     fetchEmpList();
   }
@@ -61,25 +94,28 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
       items.clear();
       enabledbuttonlist.clear();
     });
+    SharedPreferences preferencecuid = await SharedPreferences.getInstance();
+    SharedPreferences preferencesuid = await SharedPreferences.getInstance();
     try {
       var uri = "$customurl/controller/process/app/attendance.php";
       final response = await http.post(uri, body: {
         'type': 'attendance_master',
-        'cid': SharedPreferencesInstance.getString('comp_id'),
-        'uid': SharedPreferencesInstance.getString('uid')
+        'cid': preferencecuid.getString('comp_id'),
+        'uid': preferencesuid.getString('uid')
       }, headers: <String, String>{
         'Accept': 'application/json',
       });
       data = json.decode(response.body);
-      //debugPrint(data.toString());
       if (data.containsKey('status')) {
         if (data['status'] == true) {
           setState(() {
             initScreen = 'screenloaded';
             userData = data["data"];
             for (var i = 0; i < userData.length; i++) {
+              // checkinlist.add(userData[i]);
               if (int.parse(userData[i]['attendance'].toString()).isOdd) {
                 checkinlist.add(userData[i]);
+                log(checkinlist.toString());
               }
             }
             for (var i = 0; i < checkinlist.length; i++) {
@@ -142,7 +178,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
     dummySearchList.addAll(checkinlist);
     if (query.isNotEmpty) {
       List dummyListData = [];
-      for (var item in dummySearchList) {
+      dummySearchList.forEach((item) {
         if (item['u_employee_id']
                 .toString()
                 .toLowerCase()
@@ -160,7 +196,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
             isempfound = false;
           });
         }
-      }
+      });
       setState(() {
         items.clear();
         items.addAll(dummyListData);
@@ -195,7 +231,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
   }
 
   Future<Position> _getLocation() async {
-    Position currentLocation;
+    var currentLocation;
     try {
       currentLocation = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
@@ -217,11 +253,13 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
   }
 
   Future MarkAtt(String uid, int index) async {
+    SharedPreferences preferencecuid = await SharedPreferences.getInstance();
+    SharedPreferences preferencesuid = await SharedPreferences.getInstance();
     try {
       var uri = "$customurl/controller/process/app/attendance.php";
       final response = await http.post(uri, body: {
         'type': 'manager_mark',
-        'cid': SharedPreferencesInstance.getString('comp_id'),
+        'cid': preferencecuid.getString('comp_id'),
         'uid': uid,
         'lat': userLocation.latitude.toString(),
         'lng': userLocation.longitude.toString(),
@@ -234,17 +272,18 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
       mydataatt = json.decode(response.body);
       //debugPrint(mydataatt.toString());
       if (mydataatt.containsKey('status')) {
+        Navigator.pop(context);
         if (mydataatt['status'] == false) {
           messagefail = mydataatt['msg'];
           Flushbar(
             title: 'Oops',
             message: mydataatt['msg'].toString(),
-            duration: const Duration(seconds: 3),
-            icon: const Icon(
+            duration: Duration(seconds: 3),
+            icon: Icon(
               Icons.info,
               color: Colors.blue,
             ),
-          ).show(context);
+          )..show(context);
           if (debug == 'yes') {
             //print(messagefail);
           }
@@ -269,14 +308,14 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
             enabledbuttonlist.removeAt(index);
           }
           setState(() {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            Scaffold.of(context).showSnackBar(SnackBar(
               behavior: SnackBarBehavior.floating,
               elevation: 0,
-              duration: const Duration(seconds: 3),
+              duration: Duration(seconds: 3),
               backgroundColor: Colors.green.withOpacity(0.5),
               content: Text(
-                messagepass,
-                style: const TextStyle(
+                '$messagepass',
+                style: TextStyle(
                     color: Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -291,14 +330,14 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
         //debugPrint(mydataatt.toString());
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      Scaffold.of(context).showSnackBar(SnackBar(
         behavior: SnackBarBehavior.floating,
         elevation: 0,
-        duration: const Duration(seconds: 3),
+        duration: Duration(seconds: 3),
         backgroundColor: Colors.black,
         content: Text(
           error.toString(),
-          style: const TextStyle(
+          style: TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -316,20 +355,20 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
           backgroundColor: Colors.black,
           centerTitle: true,
           leading: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios,
               color: Colors.white,
             ),
             onPressed: () {
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) {
-                return const MainScr();
+                return MainScr();
               }));
             },
           ),
           actions: [
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.refresh,
                 color: Colors.white,
               ),
@@ -341,13 +380,13 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
               },
             ),
           ],
-          title: const Text('Check Out Screen'),
+          title: Text('Check Out Screen'),
         ),
         backgroundColor: Colors.white,
         body: initScreen == 'loader'
-            ? SizedBox(
+            ? Container(
                 height: MediaQuery.of(context).size.height - 70,
-                child: const Center(
+                child: Center(
                   child: CircularProgressIndicator(
                     strokeWidth: 0.8,
                   ),
@@ -367,7 +406,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                     onChanged: (v) {
                                       filterSearchResults(v.toString());
                                     },
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                         labelText: "Search",
                                         labelStyle:
                                             TextStyle(color: Colors.white),
@@ -391,21 +430,21 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                         border: OutlineInputBorder(
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(25.0)))),
-                                    style: const TextStyle(color: Colors.white),
+                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                               ),
                               if (items.isEmpty && isempfound == true)
-                                SizedBox(
+                                Container(
                                   height:
                                       MediaQuery.of(context).size.height - 160,
                                   child: GridView.count(
                                     crossAxisCount: 2,
                                     childAspectRatio: 0.6,
-                                    children: List<Widget>.generate(
+                                    children: new List<Widget>.generate(
                                         checkinlist.length, (index) {
-                                      return GridTile(
-                                        child: Card(
+                                      return new GridTile(
+                                        child: new Card(
                                             elevation: 10,
                                             color: Colors.black,
                                             child: FittedBox(
@@ -414,7 +453,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                   if (checkinlist[index]
                                                           ['p_file'] !=
                                                       '')
-                                                    SizedBox(
+                                                    Container(
                                                       height: 400,
                                                       child: Image.network(
                                                         checkinlist[index]
@@ -429,7 +468,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                   if (checkinlist[index]
                                                           ['p_file'] ==
                                                       '')
-                                                    SizedBox(
+                                                    Container(
                                                       height: 400,
                                                       child: Image.asset(
                                                         'assets/image_pic.jpg',
@@ -448,7 +487,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        const Text(
+                                                        Text(
                                                           'Name : ',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -459,11 +498,10 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           checkinlist[index][
                                                                   'u_full_name']
                                                               .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 30,
-                                                                  color: Colors
-                                                                      .white),
+                                                          style: TextStyle(
+                                                              fontSize: 30,
+                                                              color:
+                                                                  Colors.white),
                                                         ),
                                                       ],
                                                     ),
@@ -477,7 +515,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        const Text(
+                                                        Text(
                                                           'Emp ID : ',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -488,11 +526,10 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           checkinlist[index][
                                                                   'u_employee_id']
                                                               .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 30,
-                                                                  color: Colors
-                                                                      .white),
+                                                          style: TextStyle(
+                                                              fontSize: 30,
+                                                              color:
+                                                                  Colors.white),
                                                         ),
                                                       ],
                                                     ),
@@ -523,11 +560,15 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                                               index] =
                                                                           false;
                                                                     });
+                                                                     showLoaderDialogwithName(
+                                                                          context,
+                                                                          "Processing...");
                                                                     _getLocation()
                                                                         .then(
                                                                             (position) {
                                                                       userLocation =
                                                                           position;
+                                                                     
                                                                       MarkAtt(
                                                                           checkinlist[index]['uid']
                                                                               .toString(),
@@ -535,7 +576,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                                     });
                                                                   }
                                                                 : null,
-                                                        child: const Text(
+                                                        child: Text(
                                                           'Check Out',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -553,16 +594,16 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                   ),
                                 ),
                               if (items.isNotEmpty && isempfound == true)
-                                SizedBox(
+                                Container(
                                   height:
                                       MediaQuery.of(context).size.height - 160,
                                   child: GridView.count(
                                     crossAxisCount: 2,
                                     childAspectRatio: 0.6,
-                                    children: List<Widget>.generate(
+                                    children: new List<Widget>.generate(
                                         items.length, (index) {
-                                      return GridTile(
-                                        child: Card(
+                                      return new GridTile(
+                                        child: new Card(
                                             elevation: 10,
                                             color: Colors.black,
                                             child: FittedBox(
@@ -570,7 +611,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                 children: [
                                                   if (items[index]['p_file'] !=
                                                       '')
-                                                    SizedBox(
+                                                    Container(
                                                       height: 400,
                                                       child: Image.network(
                                                         items[index]['p_file']
@@ -583,7 +624,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                     ),
                                                   if (items[index]['p_file'] ==
                                                       '')
-                                                    SizedBox(
+                                                    Container(
                                                       height: 400,
                                                       child: Image.asset(
                                                         'assets/image_pic.jpg',
@@ -602,7 +643,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        const Text(
+                                                        Text(
                                                           'Name : ',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -613,11 +654,10 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           items[index][
                                                                   'u_full_name']
                                                               .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 30,
-                                                                  color: Colors
-                                                                      .white),
+                                                          style: TextStyle(
+                                                              fontSize: 30,
+                                                              color:
+                                                                  Colors.white),
                                                         ),
                                                       ],
                                                     ),
@@ -631,7 +671,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        const Text(
+                                                        Text(
                                                           'Emp ID : ',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -642,11 +682,10 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           items[index][
                                                                   'u_employee_id']
                                                               .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 30,
-                                                                  color: Colors
-                                                                      .white),
+                                                          style: TextStyle(
+                                                              fontSize: 30,
+                                                              color:
+                                                                  Colors.white),
                                                         ),
                                                       ],
                                                     ),
@@ -689,7 +728,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                                     });
                                                                   }
                                                                 : null,
-                                                        child: const Text(
+                                                        child: Text(
                                                           'Check Out',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -707,10 +746,10 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                   ),
                                 ),
                               if (items.isEmpty && isempfound == false)
-                                SizedBox(
+                                Container(
                                     height: MediaQuery.of(context).size.height -
                                         160,
-                                    child: const Center(
+                                    child: Center(
                                       child: Text(
                                         'No employee found',
                                         style: TextStyle(
@@ -718,16 +757,16 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                       ),
                                     )),
                               if (items.isNotEmpty && isempfound == false)
-                                SizedBox(
+                                Container(
                                   height:
                                       MediaQuery.of(context).size.height - 160,
                                   child: GridView.count(
                                     crossAxisCount: 2,
                                     childAspectRatio: 0.6,
-                                    children: List<Widget>.generate(
+                                    children: new List<Widget>.generate(
                                         items.length, (index) {
-                                      return GridTile(
-                                        child: Card(
+                                      return new GridTile(
+                                        child: new Card(
                                             elevation: 10,
                                             color: Colors.black,
                                             child: FittedBox(
@@ -735,7 +774,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                 children: [
                                                   if (items[index]['p_file'] !=
                                                       '')
-                                                    SizedBox(
+                                                    Container(
                                                       height: 400,
                                                       child: Image.network(
                                                         items[index]['p_file']
@@ -748,7 +787,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                     ),
                                                   if (items[index]['p_file'] ==
                                                       '')
-                                                    SizedBox(
+                                                    Container(
                                                       height: 400,
                                                       child: Image.asset(
                                                         'assets/image_pic.jpg',
@@ -767,7 +806,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        const Text(
+                                                        Text(
                                                           'Name : ',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -778,11 +817,10 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           items[index][
                                                                   'u_full_name']
                                                               .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 30,
-                                                                  color: Colors
-                                                                      .white),
+                                                          style: TextStyle(
+                                                              fontSize: 30,
+                                                              color:
+                                                                  Colors.white),
                                                         ),
                                                       ],
                                                     ),
@@ -796,7 +834,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        const Text(
+                                                        Text(
                                                           'Emp ID : ',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -807,11 +845,10 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                           items[index][
                                                                   'u_employee_id']
                                                               .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 30,
-                                                                  color: Colors
-                                                                      .white),
+                                                          style: TextStyle(
+                                                              fontSize: 30,
+                                                              color:
+                                                                  Colors.white),
                                                         ),
                                                       ],
                                                     ),
@@ -854,7 +891,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                                                     });
                                                                   }
                                                                 : null,
-                                                        child: const Text(
+                                                        child: Text(
                                                           'Check Out',
                                                           style: TextStyle(
                                                               fontSize: 30,
@@ -873,7 +910,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                 ),
                             ],
                           )
-                        : SizedBox(
+                        : Container(
                             width: MediaQuery.of(context).size.width,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -887,7 +924,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                               15),
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(
+                                SizedBox(
                                   height: 10,
                                 ),
                                 Text(
@@ -898,7 +935,7 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                                               15),
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(
+                                SizedBox(
                                   height: 10,
                                 ),
                                 Text(
@@ -914,17 +951,21 @@ class _MainScrChckOutState extends State<MainScrChckOut> {
                           ),
                   )
                 : initScreen == 'no found'
-                    ? const Center(
-                      child: Text(
-                        'No data',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                    )
-                    : const Center(
-                      child: Text(
-                        'Nothing to show',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                    ));
+                    ? Container(
+                        child: Center(
+                          child: Text(
+                            'No data',
+                            style: TextStyle(fontSize: 20, color: Colors.black),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        child: Center(
+                          child: Text(
+                            'Nothing to show',
+                            style: TextStyle(fontSize: 20, color: Colors.black),
+                          ),
+                        ),
+                      ));
   }
 }

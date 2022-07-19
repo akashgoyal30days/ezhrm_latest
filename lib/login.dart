@@ -11,8 +11,6 @@ import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:device_info/device_info.dart';
-import 'package:flutter_signin_button/button_list.dart';
-import 'package:flutter_signin_button/button_view.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -21,15 +19,16 @@ import 'package:otp_text_field/style.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'main.dart';
-import 'register.dart';
 import 'constants.dart';
 import 'custom_text_field.dart';
 import 'api.dart';
 import 'services/shared_preferences_singleton.dart';
 
 final _googleSignIn = GoogleSignIn(scopes: ['email']);
+String liveattendancetoken;
 
 class Login extends StatefulWidget {
   const Login({Key key}) : super(key: key);
@@ -184,18 +183,17 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
     var uri = "$customurl/controller/process/app/user_glogin.php";
     final response = await http.post(uri, body: {
       'type': 'glogin',
-      'email': _currentUser.email??"",
-      'device_id': _platformVersion??"",
-      'device_id2': _platformVersion??"",
-      'version': version??"",
-      'firebase': mytoken??"",
+      'email': _currentUser.email ?? "",
+      'device_id': _platformVersion ?? "",
+      'device_id2': _platformVersion ?? "",
+      'version': version ?? "",
+      'firebase': mytoken ?? "",
       'platform': 'android',
     }, headers: <String, String>{
       'Accept': 'application/json',
     });
     var mydata = json.decode(response.body);
 
-    
     if (!mydata.containsKey('status')) {
       setState(() {
         visible = false;
@@ -426,19 +424,38 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
         visible = false;
       });
       if (rsp['status'].toString() == "true") {
+        // SharedPreferences preferencescname =
+        //     await SharedPreferences.getInstance();
+        // preferencescname.setString(
+        //     'liveattendancetoken', rsp['data']['ftoken']);
+
+        // liveattendancetoken = preferencescname.getString("liveattendancetoken");
+        // log("Live attendance token :" + liveattendancetoken.toString());
+
         await SharedPreferencesInstance.loginDataInitialise(rsp);
         if (rsp['data']['role'].toString().trim() == 'Attendance Manager') {
-          setState(() {
-            todash = false;
+          setState(()  {
+            // SharedPreferences preferenceattmanager =
+            //     await SharedPreferences.getInstance();
+            // preferenceattmanager.setString('att_manager', '1'.toString());
+            // preferenceattmanager.setString(
+            //     'framenumbers', rsp["frames"].toString());
+            // preferenceattmanager.setString(
+            //     'facedistance', rsp["distance"].toString());
+            // preferenceattmanager.setString(
+            //     'frametime', rsp["timing"].toString());
+
+            // Navigator.push(context,
+            //     MaterialPageRoute(builder: ((context) => const MainScr())));
           });
           SharedPreferencesInstance.setString('att_manager', '1');
         } else {
-          setState(() {
-            todash = true;
-          });
+          setState(() {});
+
           SharedPreferencesInstance.setString('att_manager', '0');
         }
         restartApp();
+
         if (datak != null) {
           datak['code'] = 1002;
         }
