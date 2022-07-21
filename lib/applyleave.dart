@@ -197,6 +197,7 @@ class _ApplyLeaveState extends State<ApplyLeave>
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+        selectedDatenew = selectedDate;
       });
     }
   }

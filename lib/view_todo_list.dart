@@ -1,18 +1,11 @@
 import 'dart:developer';
 
-import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:ezhrm/services/shared_preferences_singleton.dart';
 import 'package:ezhrm/upload_csr.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'dart:convert';
-import 'applywfh.dart';
 import 'constants.dart';
 import 'drawer.dart';
 
@@ -28,7 +21,7 @@ class _ViewTodoListState extends State<ViewTodoList>
   bool visible = false;
   Map data;
   Map datanew;
-  List userData =[];
+  List userData;
   List userDatanew;
   String _mylist;
   String _mycredit;
@@ -50,16 +43,16 @@ class _ViewTodoListState extends State<ViewTodoList>
 
   showLoaderDialogwithName(BuildContext context, String message) {
     AlertDialog alert = AlertDialog(
-      contentPadding: EdgeInsets.all(15),
+      contentPadding: const EdgeInsets.all(15),
       content: Row(
         children: [
-          CircularProgressIndicator(color: themecolor),
+          const CircularProgressIndicator(color: themecolor),
           Container(
-              margin: EdgeInsets.only(left: 25),
+              margin: const EdgeInsets.only(left: 25),
               child: Text(
                 message,
-                style:
-                    TextStyle(fontWeight: FontWeight.w500, color: themecolor),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w500, color: themecolor),
               )),
         ],
       ),
@@ -84,14 +77,17 @@ class _ViewTodoListState extends State<ViewTodoList>
         'Accept': 'application/json',
       });
       var rsp = jsonDecode(response.body);
-      // log(rsp.toString());
+      log(rsp.toString());
       if (rsp.containsKey("status")) {
         if (rsp["status"].toString() == "true") {
           userData = rsp["data"];
           setState(() {});
+        } else {
+          userData = [];
+          setState(() {});
         }
       }
-      log(userData.toString());
+      // log(userData.toString());
     } catch (error) {
       log(error.toString());
     }
@@ -114,8 +110,8 @@ class _ViewTodoListState extends State<ViewTodoList>
       if (rsp.containsKey("status")) {
         if (rsp["status"].toString() == "true") {
           Navigator.pop(context);
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => ViewTodoList()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const ViewTodoList()));
         }
       }
       log(userData.toString());
@@ -130,7 +126,7 @@ class _ViewTodoListState extends State<ViewTodoList>
         context: context,
         builder: (context) {
           return Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
@@ -142,7 +138,7 @@ class _ViewTodoListState extends State<ViewTodoList>
                 FlatButton(
                   color: Colors.green,
                   textColor: Colors.white,
-                  child: Text("Mark as Complete"),
+                  child: const Text("Mark as Complete"),
                   onPressed: () {
                     Navigator.pop(context);
                     showLoaderDialogwithName(context, "Please Wait..");
@@ -235,14 +231,14 @@ class _ViewTodoListState extends State<ViewTodoList>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        const Text(
                                           "Task",
                                           style: TextStyle(
                                               color: themecolor,
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 5,
                                         ),
                                         Text(
@@ -252,15 +248,15 @@ class _ViewTodoListState extends State<ViewTodoList>
                                             fontSize: 15,
                                           ),
                                         ),
-                                        Divider(),
-                                        Text(
+                                        const Divider(),
+                                        const Text(
                                           "Deadline",
                                           style: TextStyle(
                                               color: themecolor,
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 5,
                                         ),
                                         Text(
@@ -271,7 +267,7 @@ class _ViewTodoListState extends State<ViewTodoList>
                                             fontSize: 15,
                                           ),
                                         ),
-                                        Divider(),
+                                        const Divider(),
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
@@ -280,7 +276,7 @@ class _ViewTodoListState extends State<ViewTodoList>
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text(
+                                                const Text(
                                                   "Status",
                                                   style: TextStyle(
                                                       color: themecolor,
@@ -288,7 +284,7 @@ class _ViewTodoListState extends State<ViewTodoList>
                                                       fontWeight:
                                                           FontWeight.bold),
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 5,
                                                 ),
                                                 userData[index]["status"]
@@ -302,10 +298,10 @@ class _ViewTodoListState extends State<ViewTodoList>
                                                                         5),
                                                             color:
                                                                 Colors.green),
-                                                        child: Padding(
+                                                        child: const Padding(
                                                           padding:
-                                                              const EdgeInsets
-                                                                  .all(5.0),
+                                                              EdgeInsets.all(
+                                                                  5.0),
                                                           child: Text(
                                                             "Completed",
                                                             style: TextStyle(
@@ -326,10 +322,10 @@ class _ViewTodoListState extends State<ViewTodoList>
                                                                     .circular(
                                                                         5),
                                                             color: Colors.red),
-                                                        child: Padding(
+                                                        child: const Padding(
                                                           padding:
-                                                              const EdgeInsets
-                                                                  .all(5.0),
+                                                              EdgeInsets.all(
+                                                                  5.0),
                                                           child: Text(
                                                             "Pending",
                                                             style: TextStyle(
@@ -359,7 +355,7 @@ class _ViewTodoListState extends State<ViewTodoList>
                                                     onPressed: () {
                                                       openstatussheet(index);
                                                     },
-                                                    child: Text(
+                                                    child: const Text(
                                                       "Change Status",
                                                       style: TextStyle(
                                                           color: Colors.white),

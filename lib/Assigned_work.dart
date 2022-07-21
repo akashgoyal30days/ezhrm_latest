@@ -98,7 +98,7 @@ class _Assigned_workState extends State<Assigned_work>
   bool visible = false;
   Map data;
   Map datanew;
-  List userData = [];
+  List userData;
   List userDatanew;
   String _mylist;
   String _mycredit;
@@ -151,9 +151,8 @@ class _Assigned_workState extends State<Assigned_work>
                           selectcheckintime();
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: Text(checkintimevalue)
-                        )),
+                            padding: const EdgeInsets.all(2.0),
+                            child: Text(checkintimevalue))),
                     const Divider(),
                     const Text(
                       "Check Out time",
@@ -171,9 +170,7 @@ class _Assigned_workState extends State<Assigned_work>
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(2.0),
-                          child: 
-                             
-                                Text(checkouttimevalue),
+                          child: Text(checkouttimevalue),
                         )),
                     const Divider(),
                     TextField(
@@ -254,6 +251,9 @@ class _Assigned_workState extends State<Assigned_work>
       if (rsp.containsKey("status")) {
         if (rsp["status"].toString() == "true") {
           userData = rsp["data"];
+          setState(() {});
+        } else {
+          userData = [];
           setState(() {});
         }
       }
