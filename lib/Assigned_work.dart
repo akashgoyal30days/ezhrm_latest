@@ -31,7 +31,7 @@ class _Assigned_workState extends State<Assigned_work>
   TimeOfDay Checkouttime;
   TextEditingController remarkscontroller = TextEditingController();
 
-  selectcheckintime() async {
+  selectcheckintime(int index) async {
     var initialtime = TimeOfDay.now();
 
     var pickedtime = await showTimePicker(
@@ -59,11 +59,13 @@ class _Assigned_workState extends State<Assigned_work>
       log(time1.toString());
       log(min1.toString());
       log(zone1.toString());
-      setState(() {});
+      checkintimevalue = time1 + " : " + min1 + " : " + zone1;
+      Navigator.pop(context);
+      showstatussheet(context, index);
     }
   }
 
-  selectcheckouttime() async {
+  selectcheckouttime(int index) async {
     var initialtime = TimeOfDay.now();
 
     var pickedtime = await showTimePicker(
@@ -91,7 +93,9 @@ class _Assigned_workState extends State<Assigned_work>
       log(time2.toString());
       log(min2.toString());
       log(zone2.toString());
-      setState(() {});
+      checkouttimevalue = time2 + " : " + min2 + " : " + zone2;
+      Navigator.pop(context);
+      showstatussheet(context, index);
     }
   }
 
@@ -120,16 +124,19 @@ class _Assigned_workState extends State<Assigned_work>
 
   showstatussheet(BuildContext context, int index) {
     AlertDialog alert = AlertDialog(
-        contentPadding: const EdgeInsets.all(15),
+        contentPadding: const EdgeInsets.all(0),
         content: StatefulBuilder(
-          builder: (BuildContext context, setState) {
+          builder: (BuildContext context, setui) {
             return Container(
               height: 400,
               decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10))),
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  )),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -148,12 +155,14 @@ class _Assigned_workState extends State<Assigned_work>
                         color: Colors.green,
                         height: 25,
                         onPressed: () {
-                          selectcheckintime();
+                          selectcheckintime(index);
                         },
                         child: Padding(
                             padding: const EdgeInsets.all(2.0),
                             child: Text(checkintimevalue))),
-                    const Divider(),
+                    const Divider(
+                      thickness: 1.5,
+                    ),
                     const Text(
                       "Check Out time",
                       style: TextStyle(
@@ -166,33 +175,44 @@ class _Assigned_workState extends State<Assigned_work>
                         color: Colors.green,
                         height: 25,
                         onPressed: () {
-                          selectcheckouttime();
+                          selectcheckouttime(index);
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(2.0),
                           child: Text(checkouttimevalue),
                         )),
-                    const Divider(),
+                    const Divider(
+                      thickness: 1.5,
+                    ),
                     TextField(
                       controller: remarkscontroller,
                       minLines: 3,
                       maxLines: 4,
                       decoration: InputDecoration(
-                          hintText: "Remarks",
+                          hintText: "remarks here..",
                           hintStyle: const TextStyle(color: Colors.grey),
                           border: InputBorder.none,
                           filled: true,
-                          fillColor: Colors.grey.shade300),
+                          fillColor: Colors.grey.shade100),
                     ),
-                    const Divider(),
+                    const Divider(
+                      thickness: 1.5,
+                    ),
                     FlatButton(
                       color: Colors.green,
                       textColor: Colors.white,
                       child: const Text("Mark as Complete"),
                       onPressed: () {
-                        Navigator.pop(context);
-                        showLoaderDialogwithName(context, "Please Wait..");
-                        update_assignedwork_status(userData[index]["id"], "1");
+                        if (remarkscontroller.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Please enter remarks")));
+                        } else {
+                          Navigator.pop(context);
+                          showLoaderDialogwithName(context, "Please Wait..");
+                          update_assignedwork_status(
+                              userData[index]["id"], "1");
+                        }
                       },
                     ),
                   ],
