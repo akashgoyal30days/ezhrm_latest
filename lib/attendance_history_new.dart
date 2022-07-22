@@ -339,7 +339,7 @@ credit to data
             Container(
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: Colors.blue.shade100),
+                  color: Colors.blue.shade50),
               child: Padding(
                 padding: const EdgeInsets.all(40.0),
                 child: Column(
@@ -369,7 +369,7 @@ credit to data
                         : Column(
                             children: [
                               if (userSelectedDate
-                                          .difference(dateTimeToday)
+                                          .difference(dateTimeToday) 
                                           .inDays <=
                                       0 &&
                                   (allLoadedDates[selectedDate] ??

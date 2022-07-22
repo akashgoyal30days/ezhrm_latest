@@ -11,6 +11,7 @@ import 'package:ezhrm/feedback.dart';
 import 'package:ezhrm/holiday.dart';
 import 'package:ezhrm/leavequota.dart';
 import 'package:ezhrm/leavestatus.dart';
+import 'package:ezhrm/work_reporting.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ezhrm/loan.dart';
@@ -369,14 +370,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       navigator(context, const Assigned_work());
                     },
                   ),
-                  // DashBoardItem(
-                  //   title: "Work Reporting",
-                  //   isSelected:
-                  //       currentScreen == AvailableDrawerScreens.WorkReporting,
-                  //   onTap: () async {
-                  //     navigator(context, WorkReporting());
-                  //   },
-                  // ),
+                  DashBoardItem(
+                    title: "Work Reporting",
+                    isSelected: widget.currentScreen ==
+                        AvailableDrawerScreens.WorkReporting,
+                    onTap: () async {
+                      navigator(context, WorkReporting());
+                    },
+                  ),
                 ],
               ),
 

@@ -21,7 +21,7 @@ class _WorkReportingState extends State<WorkReporting>
   bool visible = false;
   Map data;
   Map datanew;
-  List userData;
+  Map userData;
   List userDatanew;
   String _mylist;
   String _mycredit;
@@ -34,7 +34,12 @@ class _WorkReportingState extends State<WorkReporting>
   String todaysplan;
   String todayscompletedwork;
   String nextdayplaning;
-  dynamic reasonController = TextEditingController();
+  TextEditingController todaycompleteworkcontroller = TextEditingController();
+  TextEditingController nextdayplaningcontroller = TextEditingController();
+
+  bool istodaycompletedwork_readonly = true;
+  bool isnextdayplaning_readonly = true;
+
   var newdata;
   var internet = 'yes';
 
@@ -83,11 +88,17 @@ class _WorkReportingState extends State<WorkReporting>
       log(rsp.toString());
       if (rsp.containsKey("status")) {
         if (rsp["status"].toString() == "true") {
-          userData = rsp["data"];
-          todayscompletedwork = userData[0]["work"];
-          nextdayplaning = userData[0]["next_plannig"];
+          userData = rsp;
+          todayscompletedwork = userData["today_work"];
+          nextdayplaning = userData["tomorrow_plan"];
+          todaysplan = userData["today_plan"];
+
+          todaycompleteworkcontroller.text = todayscompletedwork;
+          nextdayplaningcontroller.text = nextdayplaning;
 
           setState(() {});
+        } else {
+          userData = {};
         }
       }
       // log(userData.toString());
@@ -96,15 +107,15 @@ class _WorkReportingState extends State<WorkReporting>
     }
   }
 
-  Future submit_work(String taskid, String status) async {
+  Future submit_work() async {
     try {
       var uri = "$customurl/controller/process/app/user_task.php";
       final response = await http.post(uri, body: {
         'uid': SharedPreferencesInstance.getString('uid'),
         'cid': SharedPreferencesInstance.getString('comp_id'),
-        'type': 'update_status',
-        "id": taskid,
-        "status": status,
+        'type': 'add_work',
+        "work": todaycompleteworkcontroller.text,
+        "plan": nextdayplaningcontroller.text,
       }, headers: <String, String>{
         'Accept': 'application/json',
       });
@@ -190,7 +201,8 @@ class _WorkReportingState extends State<WorkReporting>
                           height: 5,
                         ),
                         const Padding(
-                          padding: EdgeInsets.all(5.0),
+                          padding: EdgeInsets.only(
+                              top: 10, bottom: 10, left: 20, right: 20),
                           child: Text(
                             "Todays Plan Work",
                             style: TextStyle(
@@ -201,98 +213,139 @@ class _WorkReportingState extends State<WorkReporting>
                         ),
                         Padding(
                           padding: const EdgeInsets.all(10.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextField(
-                                  readOnly: true,
-                                  decoration: InputDecoration(
-                                      hintText: todaysplan ?? "",
-                                      border: InputBorder.none,
-                                      filled: true,
-                                      fillColor: Colors.grey.shade200),
-                                  minLines: 12,
-                                  maxLines: 15,
-                                )
-                              ],
-                            ),
+                          child: TextField(
+                            readOnly: true,
+                            decoration: InputDecoration(
+                                hintText: todaysplan ?? "",
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(10)),
+                                filled: true,
+                                fillColor: Colors.blue.shade50),
+                            minLines: 12,
+                            maxLines: 15,
                           ),
                         ),
-                        const SizedBox(
-                          height: 5,
+                        const Divider(
+                          thickness: 10,
                         ),
-                        const Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Text(
-                            "Today Completed Work",
-                            style: TextStyle(
-                                color: themecolor,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Today Completed Work",
+                                style: TextStyle(
+                                    color: themecolor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              istodaycompletedwork_readonly == true
+                                  ? RaisedButton(
+                                      textColor: Colors.white,
+                                      color: Colors.blue,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      onPressed: () {
+                                        istodaycompletedwork_readonly = false;
+                                        setState(() {});
+                                      },
+                                      child: const Text("Edit"),
+                                    )
+                                  : RaisedButton(
+                                      textColor: Colors.white,
+                                      color: Colors.blue,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      onPressed: () {
+                                        istodaycompletedwork_readonly = true;
+                                        setState(() {});
+                                      },
+                                      child: const Text("Done"),
+                                    )
+                            ],
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(10.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextField(
-                                  readOnly: true,
-                                  decoration: InputDecoration(
-                                      hintText: todayscompletedwork ?? "",
-                                      border: InputBorder.none,
-                                      filled: true,
-                                      fillColor: Colors.grey.shade200),
-                                  minLines: 12,
-                                  maxLines: 15,
-                                )
-                              ],
-                            ),
+                          child: TextField(
+                            controller: todaycompleteworkcontroller,
+                            readOnly: istodaycompletedwork_readonly,
+                            decoration: InputDecoration(
+                                hintText: todayscompletedwork ?? "",
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(10)),
+                                filled: true,
+                                fillColor: Colors.blue.shade50),
+                            minLines: 12,
+                            maxLines: 15,
                           ),
                         ),
-                        const SizedBox(
-                          height: 5,
+                        const Divider(
+                          thickness: 10,
                         ),
-                        const Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Text(
-                            "Next Day Planning",
-                            style: TextStyle(
-                                color: themecolor,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Next Day Planning",
+                                style: TextStyle(
+                                    color: themecolor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              isnextdayplaning_readonly == true
+                                  ? RaisedButton(
+                                      textColor: Colors.white,
+                                      color: Colors.blue,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      onPressed: () {
+                                        isnextdayplaning_readonly = false;
+                                        setState(() {});
+                                      },
+                                      child: const Text("Edit"),
+                                    )
+                                  : RaisedButton(
+                                      textColor: Colors.white,
+                                      color: Colors.blue,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      onPressed: () {
+                                        isnextdayplaning_readonly = true;
+                                        setState(() {});
+                                      },
+                                      child: const Text("Done"),
+                                    )
+                            ],
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(10.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextField(
-                                  readOnly: true,
-                                  decoration: InputDecoration(
-                                      hintText: nextdayplaning ?? "",
-                                      border: InputBorder.none,
-                                      filled: true,
-                                      fillColor: Colors.grey.shade200),
-                                  minLines: 12,
-                                  maxLines: 15,
-                                )
-                              ],
-                            ),
+                          child: TextField(
+                            controller: nextdayplaningcontroller,
+                            readOnly: isnextdayplaning_readonly,
+                            decoration: InputDecoration(
+                                hintText: nextdayplaning ?? "",
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(10)),
+                                filled: true,
+                                fillColor: Colors.blue.shade50),
+                            minLines: 12,
+                            maxLines: 15,
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: RaisedButton(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5)),
@@ -301,7 +354,11 @@ class _WorkReportingState extends State<WorkReporting>
                                 "Submit",
                                 style: TextStyle(color: Colors.white),
                               ),
-                              onPressed: () {}),
+                              onPressed: () {
+                                submit_work();
+                                showLoaderDialogwithName(
+                                    context, "please wait..");
+                              }),
                         )
                       ],
                     ),
