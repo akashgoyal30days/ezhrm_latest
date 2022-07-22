@@ -226,11 +226,12 @@ credit to data
                         );
                       }
                       return Container(
-                          margin: const EdgeInsets.all(4.0),
+                          margin: const EdgeInsets.all(2.0),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                              color: (item["color"] as Color).withOpacity(0.5),
-                              shape: BoxShape.circle),
+                            borderRadius: BorderRadius.circular(5),
+                            color: (item["color"] as Color),
+                          ),
                           child: Text(
                             date.day.toString(),
                             style: const TextStyle(color: Colors.white),
@@ -332,159 +333,171 @@ credit to data
               },
               weekendDays: const [DateTime.sunday],
             ),
-            const Divider(indent: 5, endIndent: 5),
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Center(
-                    child: Text(
-                      DateFormat("dd MMM, y").format(userSelectedDate),
-                      style: const TextStyle(
-                        color: Color(0xff072a99),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 26,
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.blue.shade100),
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Text(
+                        DateFormat("dd MMM, y").format(userSelectedDate),
+                        style: const TextStyle(
+                          color: Color(0xff072a99),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 26,
+                        ),
                       ),
                     ),
-                  ),
-                  showLoading
-                      ? Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Center(
-                            child: LoadingAnimationWidget.twistingDots(
-                              leftDotColor: const Color(0xff072a99),
-                              rightDotColor: Colors.blue,
-                              size: 40,
+                    showLoading
+                        ? Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Center(
+                              child: LoadingAnimationWidget.twistingDots(
+                                leftDotColor: const Color(0xff072a99),
+                                rightDotColor: Colors.blue,
+                                size: 40,
+                              ),
                             ),
-                          ),
-                        )
-                      : Column(
-                          children: [
-                            if (userSelectedDate
-                                        .difference(dateTimeToday)
-                                        .inDays <=
-                                    0 &&
-                                (allLoadedDates[selectedDate] ??
-                                        {})["credit"] !=
-                                    null &&
-                                (allLoadedDates[selectedDate] ??
-                                        {})["credit"] !=
-                                    "")
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    (allLoadedDates[selectedDate] ??
-                                                {})["credit"]
-                                            .toString() ??
-                                        "",
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        color: (allLoadedDates[selectedDate] ??
-                                            {})["color"]),
+                          )
+                        : Column(
+                            children: [
+                              if (userSelectedDate
+                                          .difference(dateTimeToday)
+                                          .inDays <=
+                                      0 &&
+                                  (allLoadedDates[selectedDate] ??
+                                          {})["credit"] !=
+                                      null &&
+                                  (allLoadedDates[selectedDate] ??
+                                          {})["credit"] !=
+                                      "")
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      (allLoadedDates[selectedDate] ??
+                                                  {})["credit"]
+                                              .toString() ??
+                                          "",
+                                      style: TextStyle(
+                                          letterSpacing: 1.5,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                          color:
+                                              (allLoadedDates[selectedDate] ??
+                                                  {})["color"]),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            if ((allLoadedDates[selectedDate] ??
-                                        {})["credit_id"]
-                                    .toString() !=
-                                "0")
-                              if (!isOfficialHoliday)
-                                !checkInAvailable && !checkOutAvailable
-                                    ? Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          children: const [
-                                            Icon(
-                                              Icons.warning,
-                                              color: Colors.orange,
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Center(
-                                                child: Text(
-                                                  "No Data",
-                                                  style: TextStyle(
-                                                      color: Colors.black),
+                              if ((allLoadedDates[selectedDate] ??
+                                          {})["credit_id"]
+                                      .toString() !=
+                                  "0")
+                                if (!isOfficialHoliday)
+                                  !checkInAvailable && !checkOutAvailable
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            children: const [
+                                              Icon(
+                                                Icons.warning,
+                                                color: Colors.orange,
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.all(8.0),
+                                                child: Center(
+                                                  child: Text(
+                                                    "No Data",
+                                                    style: TextStyle(
+                                                        color: Colors.black),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                            ],
+                                          ),
+                                        )
+                                      : Column(
+                                          children: [
+                                            if (checkInAvailable)
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    child: Text(
+                                                      "CHECK IN :",
+                                                      textAlign: TextAlign.end,
+                                                      style: TextStyle(
+                                                          color: Colors.green,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                        (allLoadedDates[
+                                                                selectedDate] ??
+                                                            {})["in_time"],
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontSize: 18,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            if (checkOutAvailable)
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    child: Text(
+                                                      "CHECK OUT:",
+                                                      textAlign: TextAlign.end,
+                                                      style: TextStyle(
+                                                          color: Colors.red,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                        (allLoadedDates[
+                                                                selectedDate] ??
+                                                            {})["out_time"],
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontSize: 18,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                           ],
                                         ),
-                                      )
-                                    : Column(
-                                        children: [
-                                          if (checkInAvailable)
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  child: Text(
-                                                    "Check In",
-                                                    textAlign: TextAlign.end,
-                                                    style: TextStyle(
-                                                        color:
-                                                            Color(0xff072a99),
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      (allLoadedDates[
-                                                              selectedDate] ??
-                                                          {})["in_time"],
-                                                      style: const TextStyle(
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          if (checkOutAvailable)
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  child: Text(
-                                                    "Check Out",
-                                                    textAlign: TextAlign.end,
-                                                    style: TextStyle(
-                                                        color:
-                                                            Color(0xff072a99),
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      (allLoadedDates[
-                                                              selectedDate] ??
-                                                          {})["out_time"],
-                                                      style: const TextStyle(
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                        ],
-                                      ),
-                          ],
-                        ),
-                ],
+                            ],
+                          ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -531,11 +544,10 @@ class InfoWidget extends StatelessWidget {
               const InfoWidgetItems(
                   title: "Attendance Submitted", color: Colors.black),
               const InfoWidgetItems(title: "Leave Full Day", color: Colors.red),
-               InfoWidgetItems(
+              InfoWidgetItems(
                   title: "Leave Half Day", color: Colors.red.shade100),
               const InfoWidgetItems(title: "Short Leave", color: Colors.purple),
-               InfoWidgetItems(
-                  title: "Absent", color: Colors.red.shade800),
+              InfoWidgetItems(title: "Absent", color: Colors.red.shade800),
               const InfoWidgetItems(
                   title: "Work From Home", color: Colors.blueAccent),
               const InfoWidgetItems(title: "Others", color: Colors.grey),
