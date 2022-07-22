@@ -323,7 +323,7 @@ class _Assigned_workState extends State<Assigned_work>
         context: context,
         builder: (context) {
           return Container(
-            height: 300,
+            height: 340,
             decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -335,6 +335,16 @@ class _Assigned_workState extends State<Assigned_work>
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.grey.shade300,
+                      ),
+                      width: 30,
+                      height: 5,
+                    ),
+                  ),
                   const Text(
                     "Company Name",
                     style: TextStyle(
@@ -407,6 +417,26 @@ class _Assigned_workState extends State<Assigned_work>
                     ),
                   ),
                   const Divider(),
+                  Center(
+                    child: SizedBox(
+                      child: RaisedButton(
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.arrow_back, size: 20),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Text("Go Back"),
+                            ],
+                          )),
+                    ),
+                  )
                 ],
               ),
             ),
