@@ -85,7 +85,6 @@ class _WorkReportingState extends State<WorkReporting>
         'Accept': 'application/json',
       });
       var rsp = jsonDecode(response.body);
-      log(rsp.toString());
       if (rsp.containsKey("status")) {
         if (rsp["status"].toString() == "true") {
           userData = rsp;
@@ -101,7 +100,6 @@ class _WorkReportingState extends State<WorkReporting>
           userData = {};
         }
       }
-      // log(userData.toString());
     } catch (error) {
       log(error.toString());
     }
@@ -128,7 +126,6 @@ class _WorkReportingState extends State<WorkReporting>
               MaterialPageRoute(builder: (context) => const WorkReporting()));
         }
       }
-      log(userData.toString());
     } catch (error) {
       log(error.toString());
     }
