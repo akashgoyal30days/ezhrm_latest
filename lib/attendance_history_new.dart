@@ -229,8 +229,7 @@ credit to data
                           margin: const EdgeInsets.all(2.0),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: (item["color"] as Color),
+shape: BoxShape.circle,                            color: (item["color"] as Color),
                           ),
                           child: Text(
                             date.day.toString(),
