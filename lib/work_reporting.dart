@@ -98,6 +98,9 @@ class _WorkReportingState extends State<WorkReporting>
           setState(() {});
         } else {
           userData = {};
+          setState(() {
+            
+          });
         }
       }
     } catch (error) {
